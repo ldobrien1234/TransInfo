@@ -9,7 +9,7 @@
 clear
 close all
 
-files=dir('*.png');
+files=dir('*.png'); %Gets all png files in current folder
 %files=dir('15.png');
 file_count=0;
 
@@ -40,7 +40,7 @@ indy=1:M;
 
 % coordinates
 xcoord=indx-pxc; %positive right, same as indices
-ycoord=pyc-indy; %positivue up, backwards from indices
+ycoord=pyc-indy; %positive up, backwards from indices
 
 
 %figure;imshow(imdata)
@@ -52,7 +52,8 @@ ycoord=pyc-indy; %positivue up, backwards from indices
 %% Find center by rotation about x,y
 
 %y and y shifts to consider
-%Use x,y frame that starts at center of image with up and right postiive
+%Use x,y frame that starts at center of image with up and right postive
+%Only explores near the center of the image
 ylo=ceil(min(ycoord)/4);
 yhi=floor(max(ycoord)/4);
 xlo=ceil(min(xcoord)/4);
@@ -68,7 +69,7 @@ xshifts=linspace(xlo,xhi,NXmax);
 dTh=2*pi/12; 
 thetavals=dTh:dTh:(2*pi-dTh); %Measure angle conterclockwise from X
 
-%downsample image
+%downsample image (i.e. coarsen mesh)
 %npskip=16;
 npskip=1;
 
