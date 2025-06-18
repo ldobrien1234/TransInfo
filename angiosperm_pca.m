@@ -13,16 +13,16 @@ function angiosperm_pca()
         end
     
         % Get data files in this folder only (non-recursive)
-        files_all = dir(fullfile(dataFolderPath, '*data.mat'));
+        data_files_all = dir(fullfile(dataFolderPath, '*data.mat'));
 
-        if isempty(files_all)
+        if isempty(data_files_all)
             continue;
         end
     
         %files=dir('15.png');
         file_count_all=1;
     
-        for file=files_all'
+        for file=data_files_all'
            load(fullfile(dataFolderPath,file.name));
            tirotr_all(file_count_all,:)=TIrotr;
            tirefr_all(file_count_all,:)=TIrefr;

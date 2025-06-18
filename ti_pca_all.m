@@ -13,6 +13,26 @@ function ti_pca_all()
             continue;
         end
 
+        pca_files=dir(fullfile(dataFolderPath, '*.mat'));
+
+        if isempty(pca_files)
+            continue;
+        end
+        
+
+        for file=pca_files
+            load(fullfile(dataFolderPath,file.name));
+            %Rows are TI data for a given flower, columns are theta mesh points
+            [rws,cols]=size(tirotr_all); %Size of TI data function
+            class_count=rws; %Number of flowers in 1st class (early angiosperms)
+            tirotr_angiosperms(:,:)=tirotr_all;
+            tirefr_angiosperms(:,:)=tirefr_all;
+            tirotb_angiosperms(:,:)=tirotb_all;
+            tirefb_angiosperms(:,:)=tirefb_all;
+
+        end %end loop through files in a folder
+
+    end %end loop through folders in pcaData
 
     
     %Load data file
