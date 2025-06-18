@@ -1,15 +1,21 @@
 close all
 clear
 
+%Load data file
 load('ti_early_angiosperms.mat')
-[rws,cols]=size(tirotr_all);
-class_count(1)=rws;
+%Rows are TI data for a given flower, columns are theta mesh points
+[rws,cols]=size(tirotr_all); %Size of TI data function
+class_count(1)=rws; %Number of flowers in 1st class (early angiosperms)
 tirotr_angiosperms(:,:)=tirotr_all;
 tirefr_angiosperms(:,:)=tirefr_all;
 tirotb_angiosperms(:,:)=tirotb_all;
 tirefb_angiosperms(:,:)=tirefb_all;
 
 
+%Append flowers from second data class to bottom of matrices constructed
+%above; again, each row is a flower's TI data
+%When loading the new file, variables tirotr_all, tirefr_all, tirotb_all,
+%tirefb_all are overwritten
 load('ti_eudicots_asterids.mat')
 [rws,cols]=size(tirotr_all);
 class_count(2)=rws;

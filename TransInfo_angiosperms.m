@@ -331,10 +331,9 @@ function TransInfo_angiosperms(topFolder)
             end
             
             %pwd for "path to working directory"
-            topPath=fullfile(pwd,topFolder);
             
             %Gets path removing topFolder/ (e.g. angiosperms/)
-            relativeFolder=erase(file.folder, [topPath,filesep]);
+            relativeFolder=erase(folderPath, topFolder);
 
             %Create output file path
             dataOutput=fullfile(dataFolder,relativeFolder);
@@ -348,7 +347,6 @@ function TransInfo_angiosperms(topFolder)
             if ~exist(plotOutput, 'dir')
                 mkdir(plotOutput)
             end
-
             
             
             %Naming files and giving them paths
