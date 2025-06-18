@@ -9,9 +9,7 @@ function ti_pca_all()
     for i=1:length(pcaFoldersList)
         pcaFolderPath=pcaFoldersList{i};
 
-        if isempty(pcaFolderPath)
-            continue;
-        end
+        if isempty(pcaFolder)
 
 
     

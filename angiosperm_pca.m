@@ -80,14 +80,20 @@ function angiosperm_pca()
 
         outputFolder="pcaData";
         plotFolder="pcaPlots";
+        
+        
+        
 
         output=erase(dataFolderPath,["data",filesep]);
+        [~,name,~]=fileparts(output); %Name of last folder, which becomes filename for pcaData files
         
-        dataOutputPath=fullfile(outputFolder,output);
         plotOutputPath=fullfile(plotFolder,output);
+        dataOutputPath=fullfile(outputFolder,output);
+        dataOutputFolder=erase(dataOutputPath,[filesep,name]); %for creating directory
 
-        if ~exist(dataOutputPath, "dir")
-            mkdir(dataOutputPath);
+
+        if ~exist(dataOutputFolder, "dir")
+            mkdir(dataOutputFolder);
         end
 
         if ~exist(plotOutputPath,"dir")
