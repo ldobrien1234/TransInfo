@@ -23,7 +23,7 @@ function angiosperm_pca()
         file_count_all=1;
     
         for file=data_files_all'
-           load(fullfile(dataFolderPath,file.name));
+           load(fullfile(dataFolderPath,file.name), "TIrotr","TIrefr","TIrotb","TIrefb");
            tirotr_all(file_count_all,:)=TIrotr;
            tirefr_all(file_count_all,:)=TIrefr;
            tirotb_all(file_count_all,:)=TIrotb;
@@ -42,7 +42,7 @@ function angiosperm_pca()
             [num2str(explained(1)+explained(2)) ' variance explained' ] 
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirotr_all_pca.jpg')
+        % print(h,'-djpeg','tirotr_all_pca.jpg')
         
          [coeff,score,latent,tsquared,explained] = pca(tirefr_all);
         hrefr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
@@ -51,7 +51,7 @@ function angiosperm_pca()
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirefr_all_pca.jpg')
+        % print(h,'-djpeg','tirefr_all_pca.jpg')
         
         
          [coeff,score,latent,tsquared,explained] = pca(tirotb_all);
@@ -61,7 +61,7 @@ function angiosperm_pca()
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirotb_all_pca.jpg')
+        % print(h,'-djpeg','tirotb_all_pca.jpg')
         
         
          [coeff,score,latent,tsquared,explained] = pca(tirefb_all);
@@ -71,7 +71,7 @@ function angiosperm_pca()
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirefb_all_pca.jpg')
+        % print(h,'-djpeg','tirefb_all_pca.jpg')
         
         % tirotr_early_angiosperms=tirotr_all;
         % tirefr_early_angiosperms=tirefr_all;

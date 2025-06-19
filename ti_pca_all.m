@@ -20,10 +20,11 @@ function ti_pca_all()
         end
         
 
+        class_count=0;
         for file=pca_files
-            load(fullfile(dataFolderPath,file.name));
+            load(fullfile(dataFolderPath,file.name),'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
             %Rows are TI data for a given flower, columns are theta mesh points
-            [rws,cols]=size(tirotr_all); %Size of TI data function
+            [rws,~]=size(tirotr_all); %Size of TI data function
             class_count=rws; %Number of flowers in 1st class (early angiosperms)
             tirotr_angiosperms(:,:)=tirotr_all;
             tirefr_angiosperms(:,:)=tirefr_all;
