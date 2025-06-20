@@ -18,7 +18,7 @@ clear
 % 
 % TransInfo_images(topFolder);
 % 
-% class_pca();
+class_pca();
 
 
 ti_pca_all();
