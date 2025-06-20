@@ -21,7 +21,7 @@ function ti_pca_all()
 
         
         %initializing
-        class_count=[0];
+        class_count=0; %initializing "vector" (end+1) indexing still works
         tirotr_angiosperms=[];
         tirefr_angiosperms=[];
         tirotb_angiosperms=[];
@@ -44,93 +44,79 @@ function ti_pca_all()
     end %end loop through folders in pcaData
     
     
-    class_num=length(class_count); %includes empty class at beginning
+    class_num=length(class_count)-1; %includes empty class at beginning
     sz=50; %size of points in scatter plots
-    colors=lines(class_num-1); %colors for each class (not including empty class)
+    colors=lines(class_num); %colors for each class (not including empty class)
     
-    [coeff,score,latent,tsquared,explained] = pca(tirotr_angiosperms);
+    [~,score,~,~,explained] = pca(tirotr_angiosperms);
     hrotr=figure('Visible','off'); 
-
     for class=1:class_num
         %rows in class
-        class_rws=score(sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        class_rws=sum(class_count(1:class))+1:sum(class_count(1:class+1));
         %Getting first and second principle component for each
-        %Coloring different classes 
-        scatter(score(class_rws),1),score(class_rws,2),sz,colors(i),'filled');
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
         hold on
     end
-
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+    hold off
     title({
         ['TI by rotation, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
     % print(hrotr,'-djpeg','tirotr_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirefr_angiosperms);
-    hrefr=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+
+
+
+    [~,score,~,~,explained] = pca(tirefr_angiosperms);
+    hrefr=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
     title({
         ['TI by reflection, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
     % print(hrefr,'-djpeg','tirefr_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirotb_angiosperms);
-    hrotb=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+    [~,score,~,~,explained] = pca(tirotb_angiosperms);
+    hrotb=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
     title({
         ['TI by rotation, Ref ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
     % print(hrotb,'-djpeg','tirotb_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirefb_angiosperms);
-    hrefb=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
-    % title({
-    %     ['TI by reflection, Ref ctr' ]
-    %     [num2str(explained(1)+explained(2)) ' variance explained' ]
-    %     });
+    [~,score,~,~,explained] = pca(tirefb_angiosperms);
+    hrefb=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
+    title({
+        ['TI by reflection, Ref ctr' ]
+        [num2str(explained(1)+explained(2)) ' variance explained' ]
+        });
     % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
 
     %Export to appropriate file

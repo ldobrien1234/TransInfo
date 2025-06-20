@@ -44,18 +44,18 @@ function ti_pca_all()
     end %end loop through folders in pcaData
     
     
-    class_num=length(class_count); %includes empty class at beginning
+    class_num=length(class_count)-1; %includes empty class at beginning
     sz=50; %size of points in scatter plots
-    colors=lines(class_num-1); %colors for each class (not including empty class)
+    colors=lines(class_num); %colors for each class (not including empty class)
     
     [~,score,~,~,explained] = pca(tirotr_angiosperms);
     hrotr=figure('Visible','off'); 
     for class=1:class_num
         %rows in class
-        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        class_rws=sum(class_count(1:class))+1:sum(class_count(1:class+1));
         %Getting first and second principle component for each
         %Coloring different classes different colors
-        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(class,:),'filled');
         hold on
     end
     hold off
@@ -72,10 +72,10 @@ function ti_pca_all()
     hrefr=figure('Visible','off');
     for class=1:class_num
         %rows in class
-        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        class_rws=sum(class_count(1:class))+1:sum(class_count(1:class+1));
         %Getting first and second principle component for each
         %Coloring different classes different colors
-        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(class,:),'filled');
         hold on
     end
     hold off
@@ -89,10 +89,10 @@ function ti_pca_all()
     hrotb=figure('Visible','off');
     for class=1:class_num
         %rows in class
-        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        class_rws=sum(class_count(1:class))+1:sum(class_count(1:class+1));
         %Getting first and second principle component for each
         %Coloring different classes different colors
-        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(class,:),'filled');
         hold on
     end
     hold off
@@ -106,10 +106,10 @@ function ti_pca_all()
     hrefb=figure('Visible','off');
     for class=1:class_num
         %rows in class
-        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        class_rws=sum(class_count(1:class))+1:sum(class_count(1:class+1));
         %Getting first and second principle component for each
         %Coloring different classes different colors
-        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(class,:),'filled');
         hold on
     end
     hold off
@@ -120,17 +120,17 @@ function ti_pca_all()
     % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
 
     %Export to appropriate file
-    filePath=all_pcaPlots;
+    filePath="all_pcaPlots";
 
     if ~exist(filePath,"dir")
         mkdir(filePath)
     end
 
 
-    exportgraphics(hrotr,"tirotr_pca_all.jpg");
-    exportgraphics(hrefr,"tirefr_pca_all.jpg");
-    exportgraphics(hrotb,"tirotb_pca_all.jpg");
-    exportgraphics(hrefb,"tirefb_pca_all.jpg");
+    exportgraphics(hrotr,fullfile(filePath,"tirotr_pca_all.jpg"));
+    exportgraphics(hrefr,fullfile(filePath,"tirefr_pca_all.jpg"));
+    exportgraphics(hrotb,fullfile(filePath,"tirotb_pca_all.jpg"));
+    exportgraphics(hrefb,fullfile(filePath,"tirefb_pca_all.jpg"));
 
 
 
