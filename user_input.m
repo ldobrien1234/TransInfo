@@ -17,8 +17,11 @@ clear
 % 
 % 
 % TransInfo_angiosperms(topFolder);
+% 
+% angiosperm_pca();
 
-angiosperm_pca();
+
+ti_pca_all();
 
 
 % allFolders=genpath("data");

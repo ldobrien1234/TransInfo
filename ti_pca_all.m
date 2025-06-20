@@ -13,173 +13,124 @@ function ti_pca_all()
             continue;
         end
 
-        pca_files=dir(fullfile(dataFolderPath, '*.mat'));
+        pca_files=dir(fullfile(pcaFolderPath, '*.mat'));
 
         if isempty(pca_files)
             continue;
         end
-        
 
-        class_count=0;
+        
+        %initializing
+        class_count=0; %initializing "vector" (end+1) indexing still works
+        tirotr_angiosperms=[];
+        tirefr_angiosperms=[];
+        tirotb_angiosperms=[];
+        tirefb_angiosperms=[];
+        
+        %Number of images in previous classes and current (in loop)
         for file=pca_files
-            load(fullfile(dataFolderPath,file.name),'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
+            load(fullfile(pcaFolderPath,file.name),'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
             %Rows are TI data for a given flower, columns are theta mesh points
             [rws,~]=size(tirotr_all); %Size of TI data function
-            class_count=rws; %Number of flowers in 1st class (early angiosperms)
-            tirotr_angiosperms(:,:)=tirotr_all;
-            tirefr_angiosperms(:,:)=tirefr_all;
-            tirotb_angiosperms(:,:)=tirotb_all;
-            tirefb_angiosperms(:,:)=tirefb_all;
+            class_count(end+1)=rws; %Number of flowers in 1st class (early angiosperms)
+            tirotr_angiosperms(end+1:end+rws,:)=tirotr_all;
+            tirefr_angiosperms(end+1:end+rws,:)=tirefr_all;
+            tirotb_angiosperms(end+1:end+rws,:)=tirotb_all;
+            tirefb_angiosperms(end+1:end+rws,:)=tirefb_all;
+            %summing previous classes with current for next loop
 
         end %end loop through files in a folder
 
     end %end loop through folders in pcaData
-
-    
-    %Load data file
-    load('ti_early_angiosperms.mat')
-    %Rows are TI data for a given flower, columns are theta mesh points
-    [rws,cols]=size(tirotr_all); %Size of TI data function
-    class_count(1)=rws; %Number of flowers in 1st class (early angiosperms)
-    tirotr_angiosperms(:,:)=tirotr_all;
-    tirefr_angiosperms(:,:)=tirefr_all;
-    tirotb_angiosperms(:,:)=tirotb_all;
-    tirefb_angiosperms(:,:)=tirefb_all;
     
     
-    %Append flowers from second data class to bottom of matrices constructed
-    %above; again, each row is a flower's TI data
-    %When loading the new file, variables tirotr_all, tirefr_all, tirotb_all,
-    %tirefb_all are overwritten
-    load('ti_eudicots_asterids.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(2)=rws;
-    tirotr_angiosperms(class_count(1)+1:sum(class_count(1:2)),:)=tirotr_all;
-    tirefr_angiosperms(class_count(1)+1:sum(class_count(1:2)),:)=tirefr_all;
-    tirotb_angiosperms(class_count(1)+1:sum(class_count(1:2)),:)=tirotb_all;
-    tirefb_angiosperms(class_count(1)+1:sum(class_count(1:2)),:)=tirefb_all;
+    class_num=length(class_count); %includes empty class at beginning
+    sz=50; %size of points in scatter plots
+    colors=lines(class_num-1); %colors for each class (not including empty class)
     
-    load('ti_eudicots_early_diverging_eudicots.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(3)=rws;
-    tirotr_angiosperms(sum(class_count(1:2))+1:sum(class_count(1:3)),:)=tirotr_all;
-    tirefr_angiosperms(sum(class_count(1:2))+1:sum(class_count(1:3)),:)=tirefr_all;
-    tirotb_angiosperms(sum(class_count(1:2))+1:sum(class_count(1:3)),:)=tirotb_all;
-    tirefb_angiosperms(sum(class_count(1:2))+1:sum(class_count(1:3)),:)=tirefb_all;
-    
-    load('ti_eudicots_rosids.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(4)=rws;
-    tirotr_angiosperms(sum(class_count(1:3))+1:sum(class_count(1:4)),:)=tirotr_all;
-    tirefr_angiosperms(sum(class_count(1:3))+1:sum(class_count(1:4)),:)=tirefr_all;
-    tirotb_angiosperms(sum(class_count(1:3))+1:sum(class_count(1:4)),:)=tirotb_all;
-    tirefb_angiosperms(sum(class_count(1:3))+1:sum(class_count(1:4)),:)=tirefb_all;
-    
-    load('ti_eudicots_superasterids.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(5)=rws;
-    tirotr_angiosperms(sum(class_count(1:4))+1:sum(class_count(1:5)),:)=tirotr_all;
-    tirefr_angiosperms(sum(class_count(1:4))+1:sum(class_count(1:5)),:)=tirefr_all;
-    tirotb_angiosperms(sum(class_count(1:4))+1:sum(class_count(1:5)),:)=tirotb_all;
-    tirefb_angiosperms(sum(class_count(1:4))+1:sum(class_count(1:5)),:)=tirefb_all;
-    
-    load('ti_eudicots_superrosids.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(6)=rws;
-    tirotr_angiosperms(sum(class_count(1:5))+1:sum(class_count(1:6)),:)=tirotr_all;
-    tirefr_angiosperms(sum(class_count(1:5))+1:sum(class_count(1:6)),:)=tirefr_all;
-    tirotb_angiosperms(sum(class_count(1:5))+1:sum(class_count(1:6)),:)=tirotb_all;
-    tirefb_angiosperms(sum(class_count(1:5))+1:sum(class_count(1:6)),:)=tirefb_all;
-    
-    load('ti_monocots.mat')
-    [rws,cols]=size(tirotr_all);
-    class_count(7)=rws;
-    tirotr_angiosperms(sum(class_count(1:6))+1:sum(class_count(1:7)),:)=tirotr_all;
-    tirefr_angiosperms(sum(class_count(1:6))+1:sum(class_count(1:7)),:)=tirefr_all;
-    tirotb_angiosperms(sum(class_count(1:6))+1:sum(class_count(1:7)),:)=tirotb_all;
-    tirefb_angiosperms(sum(class_count(1:6))+1:sum(class_count(1:7)),:)=tirefb_all;
-    
-    sz=50; 
-    
-     [coeff,score,latent,tsquared,explained] = pca(tirotr_angiosperms);
-    h=figure; 
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+    [~,score,~,~,explained] = pca(tirotr_angiosperms);
+    hrotr=figure('Visible','off'); 
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
     title({
         ['TI by rotation, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    print(h,'-djpeg','tirotr_all_angiosperms_pca.jpg')
+    % print(hrotr,'-djpeg','tirotr_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirefr_angiosperms);
-    h=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+
+
+
+    [~,score,~,~,explained] = pca(tirefr_angiosperms);
+    hrefr=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
     title({
         ['TI by reflection, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    print(h,'-djpeg','tirefr_all_angiosperms_pca.jpg')
+    % print(hrefr,'-djpeg','tirefr_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirotb_angiosperms);
-    h=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
+    [~,score,~,~,explained] = pca(tirotb_angiosperms);
+    hrotb=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
     title({
         ['TI by rotation, Ref ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    print(h,'-djpeg','tirotb_all_angiosperms_pca.jpg')
+    % print(hrotb,'-djpeg','tirotb_all_angiosperms_pca.jpg')
     
-     [coeff,score,latent,tsquared,explained] = pca(tirefb_angiosperms);
-    h=figure;
-    scatter(score(1:class_count(1),1),score(1:class_count(1),2),sz,'red','filled')
-    hold on
-    %for i=1:file_count
-    %   scatter(score(sum(class_count(1:i-1))+1:class_count(i),1),score(sum(class_count(1:i-1))+1:class_count(i),2),sz,'red','filled')
-    %end
-    scatter(score(class_count(1)+1:sum(class_count(1:2)),1),score(class_count(1)+1:sum(class_count(1:2)),2),sz,'green','filled')
-    scatter(score(sum(class_count(1:2))+1:sum(class_count(1:3)),1),score(sum(class_count(1:2))+1:sum(class_count(1:3)),2),sz,'blue','filled')
-    scatter(score(sum(class_count(1:3))+1:sum(class_count(1:4)),1),score(sum(class_count(1:3))+1:sum(class_count(1:4)),2),sz,'cyan','filled')
-    scatter(score(sum(class_count(1:4))+1:sum(class_count(1:5)),1),score(sum(class_count(1:4))+1:sum(class_count(1:5)),2),sz,'magenta','filled')
-    scatter(score(sum(class_count(1:5))+1:sum(class_count(1:6)),1),score(sum(class_count(1:5))+1:sum(class_count(1:6)),2),sz,'yellow','filled')
-    scatter(score(sum(class_count(1:6))+1:sum(class_count(1:7)),1),score(sum(class_count(1:6))+1:sum(class_count(1:7)),2),sz,'black','filled')
-    
-    % title({
-    %     ['TI by reflection, Ref ctr' ]
-    %     [num2str(explained(1)+explained(2)) ' variance explained' ]
-    %     });
-    print(h,'-djpeg','tirefb_all_angiosperms_pca.jpg')
+    [~,score,~,~,explained] = pca(tirefb_angiosperms);
+    hrefb=figure('Visible','off');
+    for class=1:class_num
+        %rows in class
+        class_rws=sum(class_count(1:i))+1:sum(class_count(1:i+1));
+        %Getting first and second principle component for each
+        %Coloring different classes different colors
+        scatter(score(class_rws,1),score(class_rws,2),sz,colors(i),'filled');
+        hold on
+    end
+    hold off
+    title({
+        ['TI by reflection, Ref ctr' ]
+        [num2str(explained(1)+explained(2)) ' variance explained' ]
+        });
+    % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
+
+    %Export to appropriate file
+    filePath=all_pcaPlots;
+
+    if ~exist(filePath,"dir")
+        mkdir(filePath)
+    end
+
+
+    exportgraphics(hrotr,"tirotr_pca_all.jpg");
+    exportgraphics(hrefr,"tirefr_pca_all.jpg");
+    exportgraphics(hrotb,"tirotb_pca_all.jpg");
+    exportgraphics(hrefb,"tirefb_pca_all.jpg");
 
 
 
