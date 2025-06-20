@@ -16,9 +16,9 @@ clear
 %     'Image folder: '],'s');
 % 
 % 
-% TransInfo_angiosperms(topFolder);
+% TransInfo_images(topFolder);
 % 
-% angiosperm_pca();
+% class_pca();
 
 
 ti_pca_all();

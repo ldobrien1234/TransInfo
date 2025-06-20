@@ -1,4 +1,4 @@
-function angiosperm_pca()
+function class_pca()
 
     %Getting paths from data folder
     allDataFolders=genpath("data");
@@ -13,17 +13,17 @@ function angiosperm_pca()
         end
     
         % Get data files in this folder only (non-recursive)
-        files_all = dir(fullfile(dataFolderPath, '*data.mat'));
+        data_files_all = dir(fullfile(dataFolderPath, '*data.mat'));
 
-        if isempty(files_all)
+        if isempty(data_files_all)
             continue;
         end
     
         %files=dir('15.png');
         file_count_all=1;
     
-        for file=files_all'
-           load(fullfile(dataFolderPath,file.name));
+        for file=data_files_all'
+           load(fullfile(dataFolderPath,file.name), "TIrotr","TIrefr","TIrotb","TIrefb");
            tirotr_all(file_count_all,:)=TIrotr;
            tirefr_all(file_count_all,:)=TIrefr;
            tirotb_all(file_count_all,:)=TIrotb;
@@ -35,43 +35,43 @@ function angiosperm_pca()
         c = jet(file_count_all-1);
         sz=50;
         
-        [coeff,score,latent,tsquared,explained] = pca(tirotr_all);
+        [~,score,~,~,explained] = pca(tirotr_all);
         hrotr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
         title({
             ['TI by rotation, Rot ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ] 
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirotr_all_pca.jpg')
+        % print(h,'-djpeg','tirotr_all_pca.jpg')
         
-         [coeff,score,latent,tsquared,explained] = pca(tirefr_all);
+         [~,score,~,~,explained] = pca(tirefr_all);
         hrefr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
         title({
             ['TI by reflection, Rot ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirefr_all_pca.jpg')
+        % print(h,'-djpeg','tirefr_all_pca.jpg')
         
         
-         [coeff,score,latent,tsquared,explained] = pca(tirotb_all);
+         [~,score,~,~,explained] = pca(tirotb_all);
         hrotb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
         title({
             ['TI by rotation, Ref ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirotb_all_pca.jpg')
+        % print(h,'-djpeg','tirotb_all_pca.jpg')
         
         
-         [coeff,score,latent,tsquared,explained] = pca(tirefb_all);
+         [~,score,~,~,explained] = pca(tirefb_all);
         hrefb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
         title({
             ['TI by reflection, Ref ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
-        print(h,'-djpeg','tirefb_all_pca.jpg')
+        % print(h,'-djpeg','tirefb_all_pca.jpg')
         
         % tirotr_early_angiosperms=tirotr_all;
         % tirefr_early_angiosperms=tirefr_all;
@@ -80,15 +80,20 @@ function angiosperm_pca()
 
         outputFolder="pcaData";
         plotFolder="pcaPlots";
+        
+        
+        
 
         output=erase(dataFolderPath,["data",filesep]);
-
+        [~,name,~]=fileparts(output); %Name of last folder, which becomes filename for pcaData files
         
         plotOutputPath=fullfile(plotFolder,output);
-        dataOutputName=fullfile(outputFolder,output);
+        dataOutputPath=fullfile(outputFolder,output);
+        dataOutputFolder=erase(dataOutputPath,[filesep,name]); %for creating directory
 
-        if ~exist(dataOutput, "dir")
-            mkdir(dataOutputName);
+
+        if ~exist(dataOutputFolder, "dir")
+            mkdir(dataOutputFolder);
         end
 
         if ~exist(plotOutputPath,"dir")
@@ -96,7 +101,7 @@ function angiosperm_pca()
         end
 
 
-        save(dataOutputName);
+        save(dataOutputPath);
         exportgraphics(hrotr,fullfile(plotOutputPath,"tirotr_pca.jpg"));
         exportgraphics(hrefr,fullfile(plotOutputPath,"tirefr_pca.jpg"));
         exportgraphics(hrotb,fullfile(plotOutputPath,"tirotb_pca.jpg"));

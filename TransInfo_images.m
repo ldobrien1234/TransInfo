@@ -1,4 +1,4 @@
-function TransInfo_angiosperms(topFolder)
+function TransInfo_images(topFolder)
 %% Tranformation Information - asymmetry analysis of flower images from angiosperm poster
 %The sections of this matlab script go through the steps for applying TI to
 %identify the approximate symmetries of the provided flower in the image. 
@@ -24,7 +24,7 @@ function TransInfo_angiosperms(topFolder)
         folderPath = folderList{i};
         
         if isempty(folderPath)
-            continue; %continue passes to next iteration of loop
+            continue; %if folder is empty, pass to next iteration of loop
         end
     
         % Get png and jpg files in this folder only (non-recursive)
@@ -36,23 +36,28 @@ function TransInfo_angiosperms(topFolder)
         if isempty(files)
             continue;
         end
-
+        
+        %Keeping track of indices in loop
         file_count=0;
         
+        %Loop through files in one folder
         for file=files'
         
             file_count=file_count+1;
             
+            %Keeping track of path of image for storage
             imgPath=fullfile(file.folder,file.name);
+
+            %Read and store image
             tmp=imread(imgPath);
             imdata0=tmp;
             
             
             %emphasize greenness of pixel, and add 1 to keep away from 0;
             %imdata=2*tmp(:,:,1)-tmp(:,:,2)-tmp(:,:,3)+1;
-            imdata=rgb2gray(tmp)+1;
+            imdata=rgb2gray(tmp)+1; %Convert to grayscale
             
-            Dthresh=1;
+            Dthresh=1; 
             Pmax=256;
             [M,N]=size(imdata);
             
@@ -85,9 +90,9 @@ function TransInfo_angiosperms(topFolder)
             yhi=floor(max(ycoord)/4);
             xlo=ceil(min(xcoord)/4);
             xhi=floor(max(xcoord)/4);
-            NXmax=21; %51;
+            NXmax=21; %51; %Setting grid size in x-direction
             %NXmax=xhi-xlo+1;
-            NYmax=21; %51;
+            NYmax=21; %51; %Setting grid size in y-direction
             %NYmax=yhi-ylo+1;
             yshifts=linspace(ylo,yhi,NYmax); 
             xshifts=linspace(xlo,xhi,NXmax);
@@ -101,6 +106,8 @@ function TransInfo_angiosperms(topFolder)
             npskip=1;
             
             b=zeros(1,2);
+
+            %Stores TI for all centers in the grid
             TIcenter=zeros(NXmax,NYmax,length(thetavals));
             
             
@@ -133,6 +140,8 @@ function TransInfo_angiosperms(topFolder)
             %figure;imagesc(xshifts,yshifts,sum(abs(diff(TIcenter,[],3)).^2,3)')
             
             %arr=sum(abs(diff(TIcenter,[],3)).^2,3)';
+
+            %For each center point in the grid, find the minimum
             for rarr=1:NYmax
                 for carr=1:NXmax
                     arr(rarr,carr)=min(TIcenter(rarr,carr,:));
@@ -140,22 +149,24 @@ function TransInfo_angiosperms(topFolder)
             end
             
             %arr=TIcenter;
-            minimum=min(min(arr));
-            [xidmax,yidmax]=find(arr==minimum);
+            minimum=min(min(arr)); %Find the minimum of the mins
+            [xidmax,yidmax]=find(arr==minimum); %index of center
             %xidmax=mod(xidmaxtmp,NXmax);
-            rxc=xshifts(xidmax);
+            rxc=xshifts(xidmax); %center value from index
             ryc=yshifts(yidmax);
             %rxc=xshifts(11);
             %ryc=yshifts(13);
             
-            %% translate and reflect x,y to find center by TI
+            %% translate and reflect x,y to find center of TI
+            %Note: not computing TI for reflections in [0,pi] but only
+            %reflecting across horizontal and vertical axes
             
             
             TIx=zeros(1,NXmax);
             TIy=zeros(NYmax,1);
             
-            Ary=[1,0,0;0,-1,0;0,0,1];
-            Arx=[-1,0,0;0,1,0;0,0,1];
+            Ary=[1,0,0;0,-1,0;0,0,1]; %Affine transformation reflecting across y-axis
+            Arx=[-1,0,0;0,1,0;0,0,1]; %Affine transformation reflecting across x-axis
             
             %shift in x and reflect about y
             for llx=1:NXmax
@@ -181,13 +192,13 @@ function TransInfo_angiosperms(topFolder)
                 
             
             %center will be at min of TI
-            [xpks,xlocs,w,proms]=findpeaks(-TIx);
+            [~,xlocs,~,proms]=findpeaks(-TIx);
             %figure;findpeaks(-TIx,xshifts,'Annotate','extents')
             %title('x center')
             [~,nxc]=max(proms);
             bxc=xshifts(xlocs(nxc)); %xshift in pixels
             
-            [ypks,ylocs,w,proms]=findpeaks(-TIy);
+            [~,ylocs,~,proms]=findpeaks(-TIy);
             %figure;findpeaks(-TIy,yshifts,'Annotate','extents')
             %title('y center')
             [~,nyc]=max(proms);

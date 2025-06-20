@@ -67,7 +67,7 @@ function ti_pca_all()
     
 
 
-
+    %Should add a legend to the plots!!
     [~,score,~,~,explained] = pca(tirefr_angiosperms);
     hrefr=figure('Visible','off');
     for class=1:class_num
@@ -114,7 +114,7 @@ function ti_pca_all()
     end
     hold off
     title({
-        ['TI by reflection, Ref ctr' ]
+        ['TI by reflection, Ref ctr'] 
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
     % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
