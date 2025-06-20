@@ -28,10 +28,13 @@ function ti_pca_all()
         tirefb_angiosperms=[];
         
         %Number of images in previous classes and current (in loop)
+        fileNames={}; %To save filenames for legend
         for file=pca_files
             load(fullfile(pcaFolderPath,file.name),'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
+
             %Rows are TI data for a given flower, columns are theta mesh points
             [rws,~]=size(tirotr_all); %Size of TI data function
+            fileNames{end+1}=erase(file.name,'.mat');
             class_count(end+1)=rws; %Number of flowers in 1st class (early angiosperms)
             tirotr_angiosperms(end+1:end+rws,:)=tirotr_all;
             tirefr_angiosperms(end+1:end+rws,:)=tirefr_all;
@@ -63,6 +66,7 @@ function ti_pca_all()
         ['TI by rotation, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
+    legend(fileNames); %add legend for each color
     % print(hrotr,'-djpeg','tirotr_all_angiosperms_pca.jpg')
     
 
@@ -83,6 +87,7 @@ function ti_pca_all()
         ['TI by reflection, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
+    legend(fileNames); %add legend for each color
     % print(hrefr,'-djpeg','tirefr_all_angiosperms_pca.jpg')
     
     [~,score,~,~,explained] = pca(tirotb_angiosperms);
@@ -100,6 +105,7 @@ function ti_pca_all()
         ['TI by rotation, Ref ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
+    legend(fileNames); %add legend for each color
     % print(hrotb,'-djpeg','tirotb_all_angiosperms_pca.jpg')
     
     [~,score,~,~,explained] = pca(tirefb_angiosperms);
@@ -117,6 +123,7 @@ function ti_pca_all()
         ['TI by reflection, Ref ctr'] 
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
+    legend(fileNames); %add legend for each color
     % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
 
     %Export to appropriate file
