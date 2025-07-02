@@ -19,9 +19,11 @@ clear
 % TransInfo_images(topFolder);
 % 
 %class_pca();
+% 
+% 
+% ti_pca_all();
 
-
-ti_pca_all();
+gwtau_embedding('tirotr')
 
 
 % allFolders=genpath("data");
