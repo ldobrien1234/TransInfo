@@ -107,26 +107,27 @@ function gwtau_embedding(TI_trans)
     %one computed
     GW=GW+GW';  
     
-    %%% Dynamic time warping (using Matlab's function 'dtw')
-    DTW=zeros(n,n);
-    for i=1:n
-        for j=1:n
-            DTW(i,j)=dtw(X(:,i),X(:,j));
-        end
-    end
-    
-    %%% Euclidean
-    E=zeros(n,n);
-    for i=1:n
-        for j=i+1:n
-            timei=(0:n_time_pts-1)';
-            timej=(0:n_time_pts-1)';
-            Traji=[timei X(:,i)];
-            Trajj=[timej X(:,j)];
-            E(i,j)=norm(Traji-Trajj);
-        end
-    end
-    E=E+E';
+    %Dynamic time warping and Euclidean distance btwn TI curves
+    % %%% Dynamic time warping (using Matlab's function 'dtw')
+    % DTW=zeros(n,n);
+    % for i=1:n
+    %     for j=1:n
+    %         DTW(i,j)=dtw(X(:,i),X(:,j));
+    %     end
+    % end
+    % 
+    % %%% Euclidean
+    % E=zeros(n,n);
+    % for i=1:n
+    %     for j=i+1:n
+    %         timei=(0:n_time_pts-1)';
+    %         timej=(0:n_time_pts-1)';
+    %         Traji=[timei X(:,i)];
+    %         Trajj=[timej X(:,j)];
+    %         E(i,j)=norm(Traji-Trajj);
+    %     end
+    % end
+    % E=E+E';
     
     
     
@@ -152,76 +153,76 @@ function gwtau_embedding(TI_trans)
     % ylabel('measurement')
     % title('let-99 trajectories')
     
-    %%%%plot the flowers
-    img1 = imread('374.png');
-    img2 = imread('377.png');
-    img3 = imread('378.png');
-    img4 = imread('379.png');
-    img5 = imread('382.png');
-    img6 = imread('383.png');
+    %%%%plot distances and the embedding
+    % img1 = imread('374.png');
+    % img2 = imread('377.png');
+    % img3 = imread('378.png');
+    % img4 = imread('379.png');
+    % img5 = imread('382.png');
+    % img6 = imread('383.png');
     
-    figure(1)
-    subplot(1,6,1)
-    imshow(img1); 
-    subplot(1,6,2)
-    imshow(img2); 
-    subplot(1,6,3)
-    imshow(img3); 
-    subplot(1,6,4)
-    imshow(img4); 
-    subplot(1,6,5)
-    imshow(img5); 
-    subplot(1,6,6)
-    imshow(img6); 
+    % figure(1)
+    % subplot(1,6,1)
+    % imshow(img1); 
+    % subplot(1,6,2)
+    % imshow(img2); 
+    % subplot(1,6,3)
+    % imshow(img3); 
+    % subplot(1,6,4)
+    % imshow(img4); 
+    % subplot(1,6,5)
+    % imshow(img5); 
+    % subplot(1,6,6)
+    % imshow(img6); 
     
     %D=GW;
     num_clusters = 2;
     % Step 1: Non-Metric MDS (like isoMDS)
-    [XMDS_GW, stress] = mdscale(GW, 2, 'Criterion', 'sstress'); 
-    [XMDS_E, stress] = mdscale(E, 2, 'Criterion', 'sstress'); 
-    [XMDS_DTW, stress] = mdscale(DTW, 2, 'Criterion', 'sstress'); 
+    [XMDS_GW, ~] = mdscale(GW, 2, 'Criterion', 'sstress'); 
+    % [XMDS_E, stress] = mdscale(E, 2, 'Criterion', 'sstress'); 
+    % [XMDS_DTW, stress] = mdscale(DTW, 2, 'Criterion', 'sstress'); 
     
     % Step 2: Perform K-Means Clustering (k=3, as in R)
     cluster_labels_GW = kmeans(XMDS_GW, num_clusters);
-    cluster_labels_E = kmeans(XMDS_E, num_clusters);
-    cluster_labels_DTW = kmeans(XMDS_DTW, num_clusters);
+    % cluster_labels_E = kmeans(XMDS_E, num_clusters);
+    % cluster_labels_DTW = kmeans(XMDS_DTW, num_clusters);
     
     
     %%%%%%%%%%% heatmap GW
-    figure(2)
-    subplot(1,2,1)
-    heatmap(GW,'Colormap',cool)
+    h1=figure('Visible','Off');
+    heatmap(GW,'Colormap',cool);
     title('GWtau')
-    subplot(1,2,2)
+
+    h2=figure('Visible','Off');
     scatter(XMDS_GW(:,1), XMDS_GW(:,2), 50, cluster_labels_GW, 'filled');
     text(XMDS_GW(:,1), XMDS_GW(:,2), cellstr(num2str((1:size(GW,1))')), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
     title('Non-Metric MDS with K-Means Clustering');
     xlabel('Dimension 1'); ylabel('Dimension 2');
     grid on;
     
-    %%%%%%%%%%% heatmap DTW
-    figure(3)
-    subplot(1,2,1)
-    heatmap(DTW,'Colormap',cool)
-    title('Dynamic Time Warping (DTW)')
-    subplot(1,2,2)
-    scatter(XMDS_DTW(:,1), XMDS_DTW(:,2), 50, cluster_labels_DTW, 'filled');
-    text(XMDS_DTW(:,1), XMDS_DTW(:,2), cellstr(num2str((1:size(DTW,1))')), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-    title('Non-Metric MDS with K-Means Clustering');
-    xlabel('Dimension 1'); ylabel('Dimension 2');
-    grid on;
-    
-    %%%%%%%%%%% heatmap Euclidean
-    figure(4)
-    subplot(1,2,1)
-    heatmap(E,'Colormap',cool)
-    title('Euclidean')
-    subplot(1,2,2)
-    scatter(XMDS_E(:,1), XMDS_E(:,2), 50, cluster_labels_E, 'filled');
-    text(XMDS_E(:,1), XMDS_E(:,2), cellstr(num2str((1:size(E,1))')), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-    title('Non-Metric MDS with K-Means Clustering');
-    xlabel('Dimension 1'); ylabel('Dimension 2');
-    grid on;
+    % %%%%%%%%%%% heatmap DTW
+    % figure(3)
+    % subplot(1,2,1)
+    % heatmap(DTW,'Colormap',cool)
+    % title('Dynamic Time Warping (DTW)')
+    % subplot(1,2,2)
+    % scatter(XMDS_DTW(:,1), XMDS_DTW(:,2), 50, cluster_labels_DTW, 'filled');
+    % text(XMDS_DTW(:,1), XMDS_DTW(:,2), cellstr(num2str((1:size(DTW,1))')), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+    % title('Non-Metric MDS with K-Means Clustering');
+    % xlabel('Dimension 1'); ylabel('Dimension 2');
+    % grid on;
+    % 
+    % %%%%%%%%%%% heatmap Euclidean
+    % figure(4)
+    % subplot(1,2,1)
+    % heatmap(E,'Colormap',cool)
+    % title('Euclidean')
+    % subplot(1,2,2)
+    % scatter(XMDS_E(:,1), XMDS_E(:,2), 50, cluster_labels_E, 'filled');
+    % text(XMDS_E(:,1), XMDS_E(:,2), cellstr(num2str((1:size(E,1))')), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+    % title('Non-Metric MDS with K-Means Clustering');
+    % xlabel('Dimension 1'); ylabel('Dimension 2');
+    % grid on;
     
     %%%%%%%%Embedding using MDS
     
@@ -232,6 +233,19 @@ function gwtau_embedding(TI_trans)
     % title('Non-Metric MDS with K-Means Clustering');
     % xlabel('Dimension 1'); ylabel('Dimension 2');
     % grid on;
+
+
+    %%Save figures to appropriate folders
+
+   
+    filePath='gwtau_plots';
+    
+    if ~exist(filePath,"dir")
+        mkdir(filePath)
+    end
+
+    exportgraphics(h1,fullfile(filePath,"dist_matrix.jpg"));
+    exportgraphics(h2,fullfile(filePath,"scatter_plot.jpg"));
 
 
 end

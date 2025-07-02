@@ -23,6 +23,7 @@ clear
 % 
 % ti_pca_all();
 
+%Add number of k-means clusters to user input?
 gwtau_embedding('tirotr')
 
 
