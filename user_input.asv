@@ -15,12 +15,8 @@ topFolder=input(['Input the path to the image top folder relative to the matlab 
     'We would input "angiosperms" (without quotes).\n'...
     'Image folder: '],'s');
 
-gwtau_trans=input("Which transformation should we compute GW-tau for? Please\n" + ...
-    " input one of 'tirotr', 'tirefr', 'tirotb', 'tirefb'. ");
-
-num_clusters=input("We compute the k-means clusters when GW-tau distances are\n" + ...
-    "embedded into 2-dimensions with multidimensional scaling. How many\n" + ...
-    "clusters would you like? ");
+clusters=input("We compute the k-means clusters when GW-tau distances are \n" + ...
+    "")
 
 %Computes TI curves for the input folder and classifies the data
 %appropriately
@@ -35,7 +31,7 @@ class_pca();
 ti_pca_all();
 
 %Add number of k-means clusters to user input?
-gwtau_embedding(gwtau_trans,num_clusters)
+gwtau_embedding('tirotr')
 
 
 % allFolders=genpath("data");

@@ -1,5 +1,5 @@
 
-function gwtau_embedding(TI_trans)
+function gwtau_embedding(TI_trans,num_clusters)
 
     %Arguments
     %   TI_trans: a string either 'tirotr', 'tirefr', 'tirotb', or 'tirefb'
@@ -176,7 +176,7 @@ function gwtau_embedding(TI_trans)
     % imshow(img6); 
     
     %D=GW;
-    num_clusters = 2;
+    % num_clusters = 2;
     % Step 1: Non-Metric MDS (like isoMDS)
     [XMDS_GW, ~] = mdscale(GW, 2, 'Criterion', 'sstress'); 
     % [XMDS_E, stress] = mdscale(E, 2, 'Criterion', 'sstress'); 
