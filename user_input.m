@@ -1,7 +1,7 @@
-% %Gets user inputs and completes data analysis
+%Gets user inputs and completes data analysis
 
 clear
- 
+
 topFolder=input(['Input the path to the image top folder relative to the matlab files\n'...
     'For example, our repository/folder has the structure\n'...
     'repo/\n'...
@@ -15,16 +15,11 @@ topFolder=input(['Input the path to the image top folder relative to the matlab 
     'We would input "angiosperms" (without quotes).\n'...
     'Image folder: '],'s');
 
-gwtau_trans=input("Which transformation should we compute GW-tau for? Please\n" + ...
-    " input one of 'tirotr', 'tirefr', 'tirotb', 'tirefb'. ");
-
-num_clusters=input("We compute the k-means clusters when GW-tau distances are\n" + ...
-    "embedded into 2-dimensions with multidimensional scaling. How many\n" + ...
-    "clusters would you like? ");
 
 %Computes TI curves for the input folder and classifies the data
 %appropriately
-TransInfo_images(topFolder);
+
+%TransInfo_images(topFolder);
 
 %Computes the PCA by class, given by the folders within the topFolder
 %Plots the TI curves along the first two principle components
@@ -35,15 +30,6 @@ class_pca();
 ti_pca_all();
 
 %Add number of k-means clusters to user input?
-gwtau_embedding(gwtau_trans,num_clusters)
+gwtau_embed_all()
 
-
-% allFolders=genpath("data");
-% folderList = strsplit(allFolders, pathsep);
-% relativePath=folderList{1};
-% parts=split(relativePath,filesep);
-% topFolder=parts{1}; %Get name of top folder (should be "data")
-% 
-% folderPath=folderList{2};
-% files = dir(fullfile(folderPath, '*data.mat'));
 
