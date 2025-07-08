@@ -5,16 +5,6 @@ function ti_pca_all()
     pcaDataFolders=genpath("pcaData");
     pcaFoldersList=strsplit(pcaDataFolders,pathsep);
 
-
-    %initializing
-    class_count=0; %initializing "vector" (end+1) indexing still works
-    tirotr_angiosperms=[];
-    tirefr_angiosperms=[];
-    tirotb_angiosperms=[];
-    tirefb_angiosperms=[];
-
-    fileNames={}; %To save filenames for legend
-
     %Iterating through folder paths
     for i=1:length(pcaFoldersList)
         pcaFolderPath=pcaFoldersList{i};
@@ -29,15 +19,23 @@ function ti_pca_all()
         if isempty(pca_files)
             continue;
         end
+
+        
+        %initializing
+        class_count=0; %initializing "vector" (end+1) indexing still works
+        tirotr_angiosperms=[];
+        tirefr_angiosperms=[];
+        tirotb_angiosperms=[];
+        tirefb_angiosperms=[];
         
         %Number of images in previous classes and current (in loop)
-        for i=1:length(pca_files)
-            file=pca_files(i);
+        fileNames={}; %To save filenames for legend
+        for file=pca_files
             load(fullfile(pcaFolderPath,file.name),'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
 
             %Rows are TI data for a given flower, columns are theta mesh points
             [rws,~]=size(tirotr_all); %Size of TI data function
-            fileNames{end+1}=erase(file.name,[".mat","_"]);
+            fileNames{end+1}=erase(file.name,'.mat');
             class_count(end+1)=rws; %Number of flowers in 1st class (early angiosperms)
             tirotr_angiosperms(end+1:end+rws,:)=tirotr_all;
             tirefr_angiosperms(end+1:end+rws,:)=tirefr_all;

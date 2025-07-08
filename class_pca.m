@@ -21,6 +21,11 @@ function class_pca()
     
         %files=dir('15.png');
         file_count_all=1;
+
+        tirotr_all=[];
+        tirefr_all=[];
+        tirotb_all=[];
+        tirefb_all=[];
     
         for file=data_files_all'
            load(fullfile(dataFolderPath,file.name), "TIrotr","TIrefr","TIrotb","TIrefb");
@@ -32,11 +37,11 @@ function class_pca()
         end
         
         %c = linspace(1,10,file_count-1);
-        c = jet(file_count_all-1);
+        %c = jet(file_count_all-1);
         sz=50;
         
         [~,score,~,~,explained] = pca(tirotr_all);
-        hrotr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
+        hrotr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,'filled')
         title({
             ['TI by rotation, Rot ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ] 
@@ -45,7 +50,7 @@ function class_pca()
         % print(h,'-djpeg','tirotr_all_pca.jpg')
         
          [~,score,~,~,explained] = pca(tirefr_all);
-        hrefr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
+        hrefr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,'filled')
         title({
             ['TI by reflection, Rot ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
@@ -55,7 +60,7 @@ function class_pca()
         
         
          [~,score,~,~,explained] = pca(tirotb_all);
-        hrotb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
+        hrotb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,'filled')
         title({
             ['TI by rotation, Ref ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
@@ -65,7 +70,7 @@ function class_pca()
         
         
          [~,score,~,~,explained] = pca(tirefb_all);
-        hrefb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,c,'filled')
+        hrefb=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,'filled')
         title({
             ['TI by reflection, Ref ctr' ] 
             [num2str(explained(1)+explained(2)) ' variance explained' ]
@@ -84,12 +89,12 @@ function class_pca()
         
         
 
-        output=erase(dataFolderPath,["data",filesep]);
+        output=erase(dataFolderPath,"data"+filesep);
         [~,name,~]=fileparts(output); %Name of last folder, which becomes filename for pcaData files
         
         plotOutputPath=fullfile(plotFolder,output);
         dataOutputPath=fullfile(outputFolder,output);
-        dataOutputFolder=erase(dataOutputPath,[filesep,name]); %for creating directory
+        dataOutputFolder=erase(dataOutputPath,filesep+string(name)); %for creating directory
 
 
         if ~exist(dataOutputFolder, "dir")
