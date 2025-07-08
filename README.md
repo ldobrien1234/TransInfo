@@ -1,5 +1,5 @@
 # TransInfo
-Matlab script to automatically compute the symmetry of image data using *transformation information (TI)*. The symmetries are then compared using either principle component analysis (PCA) or a computationally tractable version of Gromov-Wasserstein distance, known as GW-tau.
+Matlab script to automatically compute the symmetry of image data using *transformation information (TI)*. The symmetries are then compared using either principle component analysis (PCA) or a computationally tractable version of Gromov-Wasserstein distance, known as GW-tau (for more information about GW-tau, see www.github.com/kravtsova2/GWtau).
 
 ## User instructions:
 1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing file (i.e., "data", "plots", "pcaData", "pcaPlots", "all_pcaPlots", and "gwtau_plots") because files with these names may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different classes of flowers within the phylum angiosperms, so we placed each class in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
