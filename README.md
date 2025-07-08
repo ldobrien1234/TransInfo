@@ -36,6 +36,9 @@ Relevant data will be output in the following folders.
 
 - gwtau_embed_all.m: Computes the GW-tau distances between TI curves and plots the flowers on a plane based on their distances and using multidimensional scaling.
 
+- vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
+
+
 
 
 ## References
