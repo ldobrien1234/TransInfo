@@ -8,7 +8,8 @@ Matlab script to automatically compute the symmetry of image data using *transfo
 
 3. Run the file with title 'user_input.m'. It will prompt you to input the name of your image file.
 
-Relevant data will be output in the following folders.
+Relevant data will be output in the following folders. You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.
+
 - all_pcaPlots: This folder contains a plot of the first two principle components of the TI for all of your images. The data will be color coded based on the file that you used for classification.
 
 - gwtau_plots: This folder contains a plot of the GW-tau distances of your TI curves in a plane, using multidimensional scaling (MDS). The data will be color coded based on the file that you used for classification.

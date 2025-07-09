@@ -19,7 +19,7 @@ topFolder=input(['Input the path to the image top folder relative to the matlab 
 %Computes TI curves for the input folder and classifies the data
 %appropriately
 
-%TransInfo_images(topFolder);
+TransInfo_images(topFolder);
 
 %Computes the PCA by class, given by the folders within the topFolder
 %Plots the TI curves along the first two principle components
