@@ -19,9 +19,11 @@ end
 
 Acount    = sum(sum(Dim>0 & DTim>0));
 integrand = Dim.*log(Dim./DTim);
-TI        = sum(sum(integrand(~isinf(integrand))));
+
+%Values outside of \tilde{D} are zero for the transformed image;
+%they give inf and hence are ignored
+TI = sum(sum(integrand(~isinf(integrand))));
 
 
 TI=TI/Acount/Pmax;
-
 

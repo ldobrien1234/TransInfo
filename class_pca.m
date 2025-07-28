@@ -26,8 +26,10 @@ function class_pca()
         tirefr_all=[];
         tirotb_all=[];
         tirefb_all=[];
-    
+        
+        filenames={};
         for file=data_files_all'
+           filenames{end+1}=erase(file.name,'_data.mat');
            load(fullfile(dataFolderPath,file.name), "TIrotr","TIrefr","TIrotb","TIrefb");
            tirotr_all(file_count_all,:)=TIrotr;
            tirefr_all(file_count_all,:)=TIrefr;
@@ -48,6 +50,12 @@ function class_pca()
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
         % print(h,'-djpeg','tirotr_all_pca.jpg')
+        hrotr.UserData=filenames; %Store filenames in scatter UserData
+        %Create custom data tip callback
+        dcm=datacursormode(hrotr);
+        dcm.Enable='on';
+        dcm.UpdateFcn=@(src,event) showFilename(event,hrotr);
+        
         
          [~,score,~,~,explained] = pca(tirefr_all);
         hrefr=figure('Visible', 'off'); scatter(score(:,1),score(:,2),sz,'filled')
@@ -57,6 +65,11 @@ function class_pca()
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
         % print(h,'-djpeg','tirefr_all_pca.jpg')
+        hrefr.UserData=filenames; %Store filenames in scatter UserData
+        %Create custom data tip callback
+        dcm=datacursormode(hrefr);
+        dcm.Enable='on';
+        dcm.UpdateFcn=@(src,event) showFilename(event,hrefr);
         
         
          [~,score,~,~,explained] = pca(tirotb_all);
@@ -67,6 +80,11 @@ function class_pca()
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
         % print(h,'-djpeg','tirotb_all_pca.jpg')
+        hrotb.UserData=filenames; %Store filenames in scatter UserData
+        %Create custom data tip callback
+        dcm=datacursormode(hrotb);
+        dcm.Enable='on';
+        dcm.UpdateFcn=@(src,event) showFilename(event,hrotb);
         
         
          [~,score,~,~,explained] = pca(tirefb_all);
@@ -77,6 +95,11 @@ function class_pca()
             });
         %ftitle=[file.name,'tirotr_all_pca.jpg'];
         % print(h,'-djpeg','tirefb_all_pca.jpg')
+        hrefb.UserData=filenames; %Store filenames in scatter UserData
+        %Create custom data tip callback
+        dcm=datacursormode(hrefb);
+        dcm.Enable='on';
+        dcm.UpdateFcn=@(src,event) showFilename(event,hrefb);
         
         % tirotr_early_angiosperms=tirotr_all;
         % tirefr_early_angiosperms=tirefr_all;
@@ -111,8 +134,13 @@ function class_pca()
         exportgraphics(hrefr,fullfile(plotOutputPath,"tirefr_pca.jpg"));
         exportgraphics(hrotb,fullfile(plotOutputPath,"tirotb_pca.jpg"));
         exportgraphics(hrefb,fullfile(plotOutputPath,"tirefb_pca.jpg"));
-     
-
+        
+        %Saving interactive matlab figures
+        savefig(hrotr, fullfile(plotOutputPath,"tirotr_pca.fig"));
+        savefig(hrefr, fullfile(plotOutputPath,"tirefr_pca.fig"));
+        savefig(hrotb, fullfile(plotOutputPath,"tirotb_pca.fig"));
+        savefig(hrefb, fullfile(plotOutputPath,"tirefb_pca.fig"));
+  
 
 
     end %end loop through folders in data folder

@@ -37,6 +37,8 @@ function gwtau_embed_all()
         tirotb_all=[];
         tirefb_all=[];
 
+        cumFileNames={};
+
         %Iterating through folder paths
         for i = 1:length(dataFolderList)
             dataFolderPath = dataFolderList{i};
@@ -58,14 +60,16 @@ function gwtau_embed_all()
             key{end+1}=name;
         
             %files=dir('15.png');
-        
+            filenames={}; %Storing filenames within folder
             for file=data_files_all'
                load(fullfile(dataFolderPath,file.name), "TIrotr","TIrefr","TIrotb","TIrefb");
+               filenames{end+1}=erase(file.name,'_data.mat');
                tirotr_all(end+1,:)=TIrotr;
                tirefr_all(end+1,:)=TIrefr;
                tirotb_all(end+1,:)=TIrotb;
                tirefb_all(end+1,:)=TIrefb;
             end
+            cumFileNames=[cumFileNames,filenames];
 
             %Keep track of number of datum in each file
             class_count(end+1)=length(data_files_all);
@@ -143,24 +147,32 @@ function gwtau_embed_all()
         if ~exist(filePath,"dir")
             mkdir(filePath)
         end
+
+        
         
         %Naming depends on loop
         if l==1
             exportgraphics(h1,fullfile(filePath,"tirotr_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirotr_plot.jpg"));
+            savefig(h2,fullfile(filePath,"tirotr_plot.fig"));
         elseif l==2
             exportgraphics(h1,fullfile(filePath,"tirefr_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirefr_plot.jpg"));
+            savefig(h2,fullfile(filePath,"tirefr_plot.fig"));
         elseif l==3
             exportgraphics(h1,fullfile(filePath,"tirotb_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirotb_plot.jpg"));
+            savefig(h2,fullfile(filePath,"tirotb_plot.fig"));
         elseif l==4
             exportgraphics(h1,fullfile(filePath,"tirefb_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirefb_plot.jpg"));
+            savefig(h2,fullfile(filePath,"tirefb_plot.fig"));
         end
 
 
     end %end iterations through different transformations and centers
+
+    save(fullfile(filePath,'filenames.mat'),'cumFileNames');
 
 
 end %end function

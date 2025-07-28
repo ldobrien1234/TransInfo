@@ -2,34 +2,25 @@
 
 clear
 
-topFolder=input(['Input the path to the image top folder relative to the matlab files\n'...
-    'For example, our repository/folder has the structure\n'...
-    'repo/\n'...
-    '|--TransInfo_angiosperms.m\n'...
-    '|--transinfo.m\n'...
-    '...\n'...
-    '|--angiosperms\n'...
-    '...\n'...
-    'where all of our flower images are contained in the angiosperms folder\n'...
-    'and are classified with subfolders.\n'...
-    'We would input "angiosperms" (without quotes).\n'...
-    'Image folder: '],'s');
+% topFolder=uigetdir(pwd, 'Please select your data folder.');
+% topFolder=erase(topFolder, [pwd,filesep]);
 
 
-%Computes TI curves for the input folder and classifies the data
-%appropriately
-
-TransInfo_images(topFolder);
-
-%Computes the PCA by class, given by the folders within the topFolder
-%Plots the TI curves along the first two principle components
-class_pca();
-
-%Computes the PCA for all TI curves (all classes) together
-%Plots the TI curves along the first two principle components
-ti_pca_all();
-
-%Add number of k-means clusters to user input?
+% %Computes TI curves for the input folder and classifies the data
+% %appropriately
+% 
+% TransInfo_images(topFolder);
+% 
+% %Computes the PCA by class, given by the folders within the topFolder
+% %Plots the TI curves along the first two principle components
+% class_pca();
+% 
+% %Computes the PCA for all TI curves (all classes) together
+% %Plots the TI curves along the first two principle components
+% ti_pca_all();
+% 
+% %Add number of k-means clusters to user input?
 gwtau_embed_all()
+
 
 
