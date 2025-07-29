@@ -92,7 +92,7 @@ function ti_pca_all()
         ['TI by reflection, Rot ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    legend(classNames,'Interpreter','none'); %add legend for each color
+    legend(classNames); %add legend for each color
     % print(hrefr,'-djpeg','tirefr_all_angiosperms_pca.jpg')
     
     [~,score,~,~,explained] = pca(tirotb_all_data);
@@ -110,7 +110,7 @@ function ti_pca_all()
         ['TI by rotation, Ref ctr' ]
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    legend(classNames,'Interpreter','none'); %add legend for each color
+    legend(classNames); %add legend for each color
     % print(hrotb,'-djpeg','tirotb_all_angiosperms_pca.jpg')
     
     [~,score,~,~,explained] = pca(tirefb_all_data);
@@ -128,7 +128,7 @@ function ti_pca_all()
         ['TI by reflection, Ref ctr'] 
         [num2str(explained(1)+explained(2)) ' variance explained' ]
         });
-    legend(classNames,'Interpreter','none'); %add legend for each color
+    legend(classNames); %add legend for each color
     % print(hrefb,'-djpeg','tirefb_all_angiosperms_pca.jpg')
 
     %Export to appropriate file

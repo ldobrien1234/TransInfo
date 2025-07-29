@@ -21,7 +21,9 @@ clear
 % ti_pca_all();
 % 
 % % %Add number of k-means clusters to user input?
-gwtau_embed_all()
+% gwtau_embed_all()
 
+
+ti
 
 

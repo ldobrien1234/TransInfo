@@ -1,0 +1,99 @@
+%Does k-means clustering of user-specified data
+%with user specified number of groups
+
+clear
+
+k=input("Please input number of clusters k: ");
+
+%Get full path of selected plot
+[filename,plotPath]=uigetfile(pwd,"Please select the .fig plot for clustering");
+%Make plot path relative to the primary working directory
+plotPath=erase(plotPath, [pwd,filesep]);
+
+
+%Get filename then topfolder
+currentPath = plotPath;
+while true
+    [parentDir, folderName, ~] = fileparts(currentPath);
+    if isempty(parentDir) || strcmp(parentDir, folderName) % Check for root directory
+        topFolder = folderName;
+        break;
+    end
+    topFolder = folderName; % Store the current folder name
+    currentPath = parentDir;
+end
+
+
+plotPath=plotPath(1:end-1); %Remove / at end
+
+
+if strcmp(topFolder,'pcaPlots') %PCA by class
+    dataFile=[fullfile('pcaData',erase(plotPath,[topFolder,filesep])),'.mat'];
+    
+    tiName=[filename(1:6),'_all']; %variable name to load for k_means
+    Xcluster=load(dataFile,tiName); %load one of tirotr_all, tirefr_all,...
+    
+    %Get variable from load without knowing the names
+    fileVars=fieldnames(Xcluster);
+    Xcluster=Xcluster.(fileVars{1});
+    
+    idx=kmeans(Xcluster,k);
+    sz=50;
+    [~,score,~,~,~] = pca(Xcluster);
+    
+    figure()
+    colors=lines(k); %rgb color for each cluster
+    for i=1:k %looping through clusters
+        scatter(score(idx==i,1),score(idx==i,2),sz,colors(i,:),'filled');
+        hold on
+    end
+    hold off
+    title(['k-means clustering of ', fullfile(plotPath, filename)],'Interpreter','none')
+
+
+elseif strcmp(topFolder,'all_pcaPlots')
+
+    tiName=[filename(1:6),'_all_data'];
+    Xcluster=load(fullfile(plotPath,'data.mat'),tiName);
+
+    %Get variable from load without knowing the names
+    fileVars=fieldnames(Xcluster);
+    Xcluster=Xcluster.(fileVars{1});
+    
+    idx=kmeans(Xcluster,k);
+    sz=50;
+    [~,score,~,~,~] = pca(Xcluster);
+    
+    figure()
+    colors=lines(k); %rgb color for each cluster
+    for i=1:k %looping through clusters
+        scatter(score(idx==i,1),score(idx==i,2),sz,colors(i,:),'filled');
+        hold on
+    end
+    hold off
+    title(['k-means clustering of ', fullfile(plotPath, filename)],'Interpreter','none')
+
+elseif strcmp(topFolder,'gwtau_plots')
+
+    tiName=[filename(1:6),'_all'];
+    mdsName=[filename(1:6),'_XMDS'];
+    
+    X=load(fullfile(plotPath,'data.mat'),tiName,mdsName);
+
+    %Get variable from load without knowing the names
+    fileVars=fieldnames(X);
+    Xcluster=X.(fileVars{1});
+    Xplot=X.(fileVars{2});
+    
+    idx=kmeans(Xcluster,k);
+    sz=50;
+
+    
+    figure()
+    for 
+
+
+    title(['k-means clustering of ', fullfile(plotPath, filename)],'Interpreter','none')
+
+
+end

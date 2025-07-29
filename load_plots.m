@@ -19,7 +19,7 @@ while true
     currentPath = parentDir;
 end
 
-plotPath=plotPath(1:end-1);
+plotPath=plotPath(1:end-1); %Remove / at end
 
 %Cases for the different types of plots that could be selected
 if strcmp(topFolder,'pcaPlots') %PCA by class
@@ -34,13 +34,16 @@ if strcmp(topFolder,'pcaPlots') %PCA by class
     dcm = datacursormode(fig);
     dcm.Enable = 'on';
     dcm.UpdateFcn = @(src, event) showFilename(event, fig);
+
+    % Turn off interpreter for all data tips
+    set(findall(fig,'Type','DataTip'),'Interpreter','none');
     
     %Force figure to open
     figure(fig);
 
 elseif strcmp(topFolder,'all_pcaPlots')
 
-    load(fullfile(plotPath,'filenames.mat'),'cumFileNames');
+    load(fullfile(plotPath,'data.mat'),'cumFileNames');
     fig=openfig(fullfile(plotPath,filename),'reuse');
 
     fig.UserData=cumFileNames;
@@ -49,13 +52,16 @@ elseif strcmp(topFolder,'all_pcaPlots')
     dcm = datacursormode(fig);
     dcm.Enable = 'on';
     dcm.UpdateFcn = @(src, event) showFilename(event, fig);
+
+    % Turn off interpreter for all data tips
+    set(findall(fig,'Type','DataTip'),'Interpreter','none');
     
     %Force figure to open
     figure(fig);
 
 elseif strcmp(topFolder, 'gwtau_plots')
 
-    load(fullfile(plotPath,'filenames.mat'),'cumFileNames');
+    load(fullfile(plotPath,'data.mat'),'cumFileNames');
     fig=openfig(fullfile(plotPath,filename),'reuse');
 
     fig.UserData=cumFileNames;
@@ -64,6 +70,9 @@ elseif strcmp(topFolder, 'gwtau_plots')
     dcm = datacursormode(fig);
     dcm.Enable = 'on';
     dcm.UpdateFcn = @(src, event) showFilename(event, fig);
+
+    % Turn off interpreter for all data tips
+    set(findall(fig,'Type','DataTip'),'Interpreter','none');
     
     %Force figure to open
     figure(fig);

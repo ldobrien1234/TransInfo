@@ -56,7 +56,6 @@ function gwtau_embed_all()
             
             folders=strsplit(dataFolderPath,filesep);
             name=folders{end};
-            name=erase(name,'_');
             key{end+1}=name;
         
             %files=dir('15.png');
@@ -74,7 +73,17 @@ function gwtau_embed_all()
             %Keep track of number of datum in each file
             class_count(end+1)=length(data_files_all);
     
+        end %End loop through data folders
+    
+    %Save TI
+
+    filePath='gwtau_plots';
+        
+        if ~exist(filePath,"dir")
+            mkdir(filePath)
         end
+
+    save(fullfile(filePath,'data.mat'), 'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
     
     %load tirefr.mat
     %X=tirefr_all';
@@ -133,7 +142,7 @@ function gwtau_embed_all()
             hold on
         end
         hold off
-        legend(key);
+        legend(key,'Interpreter','none');
         title('Non-Metric MDS Colored by Class');
         xlabel('Dimension 1'); ylabel('Dimension 2');
         grid on;
@@ -141,29 +150,35 @@ function gwtau_embed_all()
 
 
         %%Save figures to appropriate folders
-       
-        filePath='gwtau_plots';
-        
-        if ~exist(filePath,"dir")
-            mkdir(filePath)
-        end
 
         
         
         %Naming depends on loop
         if l==1
+            %Add GW matrix to data file
+            tirotr_XMDS=XMDS_GW;
+            save(fullfile(filePath,'data.mat'),'tirotr_XMDS','-append')
             exportgraphics(h1,fullfile(filePath,"tirotr_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirotr_plot.jpg"));
             savefig(h2,fullfile(filePath,"tirotr_plot.fig"));
         elseif l==2
+            %Add GW matrix to data file
+            tirefr_XMDS=XMDS_GW;
+            save(fullfile(filePath,'data.mat'),'tirefr_XMDS','-append')
             exportgraphics(h1,fullfile(filePath,"tirefr_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirefr_plot.jpg"));
             savefig(h2,fullfile(filePath,"tirefr_plot.fig"));
         elseif l==3
+            %Add GW matrix to data file
+            tirotb_XMDS=XMDS_GW;
+            save(fullfile(filePath,'data.mat'),'tirotb_XMDS','-append')
             exportgraphics(h1,fullfile(filePath,"tirotb_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirotb_plot.jpg"));
             savefig(h2,fullfile(filePath,"tirotb_plot.fig"));
         elseif l==4
+            %Add GW matrix to data file
+            tirefb_XMDS=XMDS_GW;
+            save(fullfile(filePath,'data.mat'),'tirefb_XMDS','-append')
             exportgraphics(h1,fullfile(filePath,"tirefb_dist.jpg"));
             exportgraphics(h2,fullfile(filePath,"tirefb_plot.jpg"));
             savefig(h2,fullfile(filePath,"tirefb_plot.fig"));
@@ -172,7 +187,7 @@ function gwtau_embed_all()
 
     end %end iterations through different transformations and centers
 
-    save(fullfile(filePath,'filenames.mat'),'cumFileNames');
+    
 
 
 end %end function
