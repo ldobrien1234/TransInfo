@@ -41,15 +41,15 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 - ti_pca_all.m: Computes the PCA of all image data, with the scatter plot classifying the images by color.
 
+- gwtau_embed_all.m: Computes the GW-tau distances between TI curves and plots the flowers on a plane based on their distances and using multidimensional scaling.
+
 -load_plots.m: Loads interactive scatter plots from the folders pcaPlots, all_pcaPlots, and gwtau_plots, where clicking on a data point will enable to user to see the image associated with the point.
 
 -my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
-- gwtau_embed_all.m: Computes the GW-tau distances between TI curves and plots the flowers on a plane based on their distances and using multidimensional scaling.
+-showFilename.m: Auxiliary function used to create interactive plots in load_plots.m
 
 - vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
-
-
 
 
 ## References
