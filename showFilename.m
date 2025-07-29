@@ -31,16 +31,30 @@ function output_txt = showFilename(event_obj, fig)
 %       dcm.UpdateFcn = @(src, event) showFilenameFromFigure(event, fig);
 %
 %   See also DATACURSORMODE, OPENFIG, USERDATA.
-    idx = event_obj.DataIndex;
 
-    if isprop(fig, 'UserData') && iscell(fig.UserData)
-        filenames = fig.UserData;
-        if idx > 0 && idx <= numel(filenames)
-            output_txt = {['File: ', filenames{idx}]};
-        else
-            output_txt = {'[Index out of bounds]'};
+    % Find all scatter handles in plotting order
+    scatterHandles = findobj(fig, 'Type', 'Scatter');
+    scatterHandles = flipud(scatterHandles); % Ensure plotting order
+
+    % Find which scatter object was clicked
+    thisScatter = event_obj.Target;
+
+    % Count how many points are before this object in plotting order
+    offset = 0;
+    for i = 1:length(scatterHandles)
+        if scatterHandles(i) == thisScatter
+            break;
         end
+        offset = offset + numel(scatterHandles(i).XData);
+    end
+
+    % Global index = local index + offset
+    globalIdx = event_obj.DataIndex + offset;
+
+    filenames = fig.UserData;
+    if globalIdx >= 1 && globalIdx <= numel(filenames)
+        output_txt = {['File: ', filenames{globalIdx}]};
     else
-        output_txt = {'[No filenames found]'};
+        output_txt = {'[Index out of bounds]'};
     end
 end
