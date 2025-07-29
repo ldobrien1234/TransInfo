@@ -4,11 +4,11 @@ Matlab script to automatically compute the symmetry of image data using *transfo
 ## User instructions:
 [Follow this link for a video tutorial](https://youtu.be/zsMTW8rYe5o)
 
-1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing file (i.e., "data", "plots", "pcaData", "pcaPlots", "all_pcaPlots", and "gwtau_plots") because files with these names may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different classes of flowers within the phylum angiosperms, so we placed each class in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
+1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing file (i.e., "data", "plots", "pcaData", "pcaPlots", "all_pcaPlots", and "gwtau_plots") because files with these names may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different clades of flowers within the phylum angiosperms, so we placed each clade in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
 
 2. Download the code, and place the image folder created in step 1 into the same directory/folder.
 
-3. Run the file with title 'user_input.m'. It will prompt you to input the name of your image file.
+3. Run the file with title 'user_input.m'. It will prompt you to select your data folder containing the image files.
 
 Relevant data will be output in the following folders. **You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.**
 
@@ -24,6 +24,10 @@ Relevant data will be output in the following folders. **You will see data with 
 
 - data: Contains the raw TI data used for "plots."
 
+For further analysis, one can use the Matlab file load_plots.m. Upon running the code, the user will be prompted to select the .fig plot that they want to load. A window will open with the plot, and by clicking on a data point, one can see the image associated with the point. 
+
+One can also use the file my_kmeans.m. Upon running the code, the user will be prompted to input the number of clusters that they want to see in the plot; then they will be prompted to select the .fig file whose data they want to see clustered. A window will open with the original scatter plot; however, the data will be colored based on the k-means clustering.
+
 
 ## Files:
 
@@ -36,6 +40,10 @@ Relevant data will be output in the following folders. **You will see data with 
 - class_pca.m: Runs the PCA within each class given by the subfolders of the original image folder, "angiosperms."
 
 - ti_pca_all.m: Computes the PCA of all image data, with the scatter plot classifying the images by color.
+
+-load_plots.m: Loads interactive scatter plots from the folders pcaPlots, all_pcaPlots, and gwtau_plots, where clicking on a data point will enable to user to see the image associated with the point.
+
+-my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
 - gwtau_embed_all.m: Computes the GW-tau distances between TI curves and plots the flowers on a plane based on their distances and using multidimensional scaling.
 
