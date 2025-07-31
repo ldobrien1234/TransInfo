@@ -83,7 +83,8 @@ function gwtau_embed_all()
             mkdir(filePath)
         end
 
-    save(fullfile(filePath,'data.mat'), 'tirotr_all','tirefr_all','tirotb_all','tirefb_all');
+    save(fullfile(filePath,'data.mat'), 'tirotr_all','tirefr_all',...
+        'tirotb_all','tirefb_all','cumFileNames');
     
     %load tirefr.mat
     %X=tirefr_all';
