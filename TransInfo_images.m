@@ -57,7 +57,7 @@ function TransInfo_images(topFolder)
             %imdata=2*tmp(:,:,1)-tmp(:,:,2)-tmp(:,:,3)+1;
             imdata=rgb2gray(tmp)+1; %Convert to grayscale
             
-            Dthresh=1; 
+            Dthresh=15; 
             Pmax=256;
             [M,N]=size(imdata);
             
