@@ -51,7 +51,7 @@ off  = numel(pre);
 % Helper: running mean via causal box filter
 avgBox = ones(m,1)/m;
 box=ones(m,1);
-padding=10^(-8); %to avoid division by zero in weighting scheme
+padding=10^(-3); %to avoid division by zero in weighting scheme
 
 % Backward (past) mean at i: mean of last m samples up to i
 bwdMean_p = filter(avgBox, 1, xp);
