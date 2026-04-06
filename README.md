@@ -65,9 +65,9 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 ### TransScale: Files and data used to perform analysis of fractal symmetry of simulated ferns
 
-###load_plots.m: Once the user has run this file, they will be prompted to select a .fig file to load. Upon loading a .fig file from the folders pcaPlots, all_pcaPlots, and gwtau_Plots (from the **RotRef** folder), the user will be able to select data points on the plot and see which image file the data point corresponds to. This is crucial for interpreting the visualized data.
+### load_plots.m: Once the user has run this file, they will be prompted to select a .fig file to load. Upon loading a .fig file from the folders pcaPlots, all_pcaPlots, and gwtau_Plots (from the **RotRef** folder), the user will be able to select data points on the plot and see which image file the data point corresponds to. This is crucial for interpreting the visualized data.
 
-###my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
+### my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
 
 ## References
