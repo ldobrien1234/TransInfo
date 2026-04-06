@@ -4,13 +4,13 @@ Matlab script to automatically compute the symmetry of image data using *transfo
 ## User instructions:
 [Follow this link for a video tutorial](https://youtu.be/zsMTW8rYe5o)
 
-1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing file (i.e., "data", "plots", "pcaData", "pcaPlots", "all_pcaPlots", and "gwtau_plots") because files with these names may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different clades of flowers within the phylum angiosperms, so we placed each clade in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
+1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing folder or file as one may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different clades of flowers within the phylum angiosperms, so we placed each clade in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
 
 2. Download the code, and place the image folder created in step 1 into the same directory/folder.
 
 3. Run the file with title 'user_input.m'. It will prompt you to select your data folder containing the image files.
 
-Relevant data will be output in the following folders. **You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.**
+Relevant data will be output in the following folders (all of which are subfolders of 'RotRef'. **You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.**
 
 - all_pcaPlots: This folder contains a plot of the first two principle components of the TI for all of your images. The data will be color coded based on the file that you used for classification.
 
@@ -29,11 +29,21 @@ For further analysis, one can use the Matlab file load_plots.m. Upon running the
 One can also use the file my_kmeans.m. Upon running the code, the user will be prompted to input the number of clusters that they want to see in the plot; then they will be prompted to select the .fig file whose data they want to see clustered. A window will open with the original scatter plot; however, the data will be colored based on the k-means clustering.
 
 
-## Files:
+## Folders and Files:
 
-- angiosperms: Folder of images to analyze
+# angiosperms: Folder of images to analyze
+
+# AuxFunctions: Folder of auxiliary functions used throughout
+
+- ckfilter.m: A function for performing a Chung-Kennedy filter on image data. We used this function for some intermediary work that is not presented in this repository.
+
+- showFilename.m: Auxiliary function used to create interactive plots in load_plots.m
 
 - transifo.m: Function for computing transformation information associated to a given transformation
+
+- vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
+
+# RotRef
 
 - TransInfo_images.m: File to compute the center and TI curve of each image
 
@@ -47,10 +57,7 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 -my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
--showFilename.m: Auxiliary function used to create interactive plots in load_plots.m
-
-- vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
+# TransScale
 
 
 ## References
-Thank you to Dr. Punit Gandhi at Virginia Commonwealth University for providing the original code, which was forked. Code and data added to the forked repository was created by Dr. Adriana Dawes at The Ohio State University, with minor modifications done by me.
