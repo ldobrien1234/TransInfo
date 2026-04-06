@@ -10,7 +10,7 @@ Matlab script to automatically compute the symmetry of image data using *transfo
 
 3. Run the file with title 'user_input.m'. It will prompt you to select your data folder containing the image files.
 
-Relevant data will be output in the following folders (all of which are subfolders of 'RotRef'. **You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.**
+Relevant data will be output in the following folders (all of which are subfolders of **'RotRef'**). **You will see data with labels rotr, refr, rotb, and refb for TI by rotation with rotational center, reflection with rotational center, rotation with reflectional center, and reflection with reflectional center.**
 
 - all_pcaPlots: This folder contains a plot of the first two principle components of the TI for all of your images. The data will be color coded based on the file that you used for classification.
 
@@ -31,9 +31,9 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 ## Folders and Files:
 
-# angiosperms: Folder of images to analyze
+### angiosperms: Folder of images to analyze
 
-# AuxFunctions: Folder of auxiliary functions used throughout
+### AuxFunctions: Folder of auxiliary functions used throughout
 
 - ckfilter.m: A function for performing a Chung-Kennedy filter on image data. We used this function for some intermediary work that is not presented in this repository.
 
@@ -43,21 +43,31 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 - vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
 
-# RotRef
+### RotRef: Folder to perform analysis of rotation and reflection symmetries of image data
+
+- **user_input.m**: File that user should run to complete TI analysis and visualization
 
 - TransInfo_images.m: File to compute the center and TI curve of each image
 
+- class_fpca.m: Can be used to run fPCA within each class given by the subfolders of the original image folder, "angiosperms."
+
 - class_pca.m: Runs the PCA within each class given by the subfolders of the original image folder, "angiosperms."
+
+- ti_fpca_all.m: Can be used to compute the fPCA of all image data, with the scatter plot classifying the images by color.
 
 - ti_pca_all.m: Computes the PCA of all image data, with the scatter plot classifying the images by color.
 
 - gwtau_embed_all.m: Computes the GW-tau distances between TI curves and plots the flowers on a plane based on their distances and using multidimensional scaling.
 
--load_plots.m: Loads interactive scatter plots from the folders pcaPlots, all_pcaPlots, and gwtau_plots, where clicking on a data point will enable to user to see the image associated with the point.
+- load_plots.m: Loads interactive scatter plots from the folders pcaPlots, all_pcaPlots, and gwtau_plots, where clicking on a data point will enable to user to see the image associated with the point.
 
--my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
+- my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
-# TransScale
+### TransScale: Files and data used to perform analysis of fractal symmetry of simulated ferns
+
+###load_plots.m: Once the user has run this file, they will be prompted to select a .fig file to load. Upon loading a .fig file from the folders pcaPlots, all_pcaPlots, and gwtau_Plots (from the **RotRef** folder), the user will be able to select data points on the plot and see which image file the data point corresponds to. This is crucial for interpreting the visualized data.
+
+###my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
 
 
 ## References
