@@ -2,7 +2,6 @@
 Matlab script to automatically compute the symmetry of image data using *transformation information (TI)*. The symmetries are then compared using either principle component analysis (PCA) or a computationally tractable version of Gromov-Wasserstein distance, known as GW-tau (for more information about GW-tau, see www.github.com/kravtsova2/GWtau).
 
 ## User instructions:
-[Follow this link for a video tutorial](https://youtu.be/zsMTW8rYe5o)
 
 1. Place your images in a folder with some label. We have labeled our image file "angiosperms"; however, any name such as "Images" or "ExperimentalData" is okay. Just make sure to avoid the name of an existing folder or file as one may be overwritten. There may be subfolders as well to classify data that we wish to compare. In our example, we wanted to compare different clades of flowers within the phylum angiosperms, so we placed each clade in a different folder. If you want to compare experimental data, you may have subfolders with images from different experimental conditions.
 
