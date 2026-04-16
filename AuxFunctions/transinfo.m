@@ -37,13 +37,24 @@ if Pmax==0
     Pmax = max(max(Dim));
 end
 
-Acount    = sum(sum(Dim>0 & DTim>0));
-integrand = Dim.*log(Dim./DTim);
+%Domain: pixels where both the original and transformed images exceed
+%Dthresh. Using Dthresh for DTim (instead of 0) is critical: at angles
+%that are exact multiples of pi/2 the rotation aligns with the pixel
+%grid so imwarp places boundary pixels at exactly 0 (excluded), whereas
+%at nearby angles bilinear interpolation gives tiny positive values like
+%0.01 that are included and make Dim*log(Dim/DTim) huge, creating
+%artificial jumps in the TI curve.
+threshold = max(Dthresh, 0);
+domain    = (Dim > threshold) & (DTim > threshold);
+Acount    = sum(domain(:));
 
-%Values outside of \tilde{D} are zero for the transformed image;
-%they give inf and hence are ignored
-TI = sum(integrand(~isinf(integrand)));
+if Acount == 0
+    TI = 0;
+    return;
+end
 
+integrand = Dim .* log(Dim ./ DTim);
+TI = sum(integrand(domain));
 
-TI=TI/Acount/Pmax; %normalization
+TI = TI / Acount / Pmax; %normalization
 
