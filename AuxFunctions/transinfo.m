@@ -38,6 +38,10 @@ else
     error('transinfo: unrecognized option argument (use ''hard'', ''soft'', or a struct).');
 end
 
+%Rescale delta to the internal [0,1] intensity scale, matching Dthresh
+%(users supply both on the [0,255] scale; internally Dim/DTim are [0,1]).
+delta = delta/255;
+
 imdata=double(imdata);
 [M,N] = size(imdata);
 tform = affine2d(Atform);
