@@ -1,8 +1,42 @@
 function TI=transinfo(imdata,Atform,Dthresh,Pmax,option)
 %imdata - original image
 %Atform - Matrix defining 2D affine transformation
-%Dthresh - anything above min(Dthresh,0) of original image will be counted in domain
+%Dthresh - domain cutoff: pixels whose value exceeds Dthresh count as
+%          flower (i.e. inside the domain D)
 %Pmax - normalize by TI Pmax. if Pmax=0, normalize by max value of imdata.
+%option - (optional) selects the domain-masking method. Default: 'hard'.
+%   'hard' : hard indicator mask, domain = {Dim > Dthresh & DTim > Dthresh}.
+%            Fast. Under noise, however, individual pixels cross the
+%            threshold one at a time, and at rational rotation angles
+%            (pi/2, pi/3, pi, 2pi/3, ...) bilinear interpolation gives many
+%            pixels identical interpolation weights, so entire cohorts of
+%            pixels cross the threshold simultaneously. This manifests as
+%            visible spikes in the TI curve at those angles.
+%   'soft' : cubic-Hermite smoothstep weight that ramps from 0 at
+%            Dthresh-delta to 1 at Dthresh+delta. The weight is a
+%            continuous function of each pixel's value, which in turn is
+%            continuous in theta (bilinear interpolation is continuous),
+%            so TI is continuous in theta and the rational-angle spikes
+%            go away. Default delta = Dthresh/3.
+%   struct('method','soft','delta',X) : soft mask with a custom
+%            transition half-width X.
+
+if nargin < 5 || isempty(option)
+    method = 'hard';
+    delta  = max(Dthresh,1)/3;
+elseif ischar(option) || isstring(option)
+    method = char(option);
+    delta  = max(Dthresh,1)/3;
+elseif isstruct(option) && isfield(option,'method')
+    method = option.method;
+    if isfield(option,'delta') && ~isempty(option.delta)
+        delta = option.delta;
+    else
+        delta = max(Dthresh,1)/3;
+    end
+else
+    error('transinfo: unrecognized option argument (use ''hard'', ''soft'', or a struct).');
+end
 
 [M,N] = size(imdata);
 tform = affine2d(Atform);
@@ -37,24 +71,70 @@ if Pmax==0
     Pmax = max(max(Dim));
 end
 
-%Domain: pixels where both the original and transformed images exceed
-%Dthresh. Using Dthresh for DTim (instead of 0) is critical: at angles
-%that are exact multiples of pi/2 the rotation aligns with the pixel
-%grid so imwarp places boundary pixels at exactly 0 (excluded), whereas
-%at nearby angles bilinear interpolation gives tiny positive values like
-%0.01 that are included and make Dim*log(Dim/DTim) huge, creating
-%artificial jumps in the TI curve.
-threshold = max(Dthresh, 0);
-domain    = (Dim > threshold) & (DTim > threshold);
-Acount    = sum(domain(:));
+threshold = max(Dthresh,0);
 
-if Acount == 0
-    TI = 0;
-    return;
+switch lower(method)
+    case 'hard'
+        %Hard-indicator domain. See header comment for why this produces
+        %rational-angle spikes under noise.
+        domain = (Dim > threshold) & (DTim > threshold);
+        Acount = sum(domain(:));
+
+        if Acount == 0
+            TI = 0;
+            return;
+        end
+
+        integrand = Dim .* log(Dim ./ DTim);
+        TI = sum(integrand(domain));
+        TI = TI / Acount / Pmax;
+
+    case 'soft'
+        %Soft cubic-Hermite smoothstep weight. Requires threshold-delta>=0
+        %so that pixels with DTim=0 (zero-padded boundary) receive exactly
+        %zero weight and the (finite-value * zero-weight) product at the
+        %boundary is well-defined. Clamp delta so this holds.
+        d = min(delta, threshold);
+
+        wD  = soft_weight(Dim,  threshold, d);
+        wDT = soft_weight(DTim, threshold, d);
+        w   = wD .* wDT;
+        Wsum = sum(w(:));
+
+        if Wsum == 0
+            TI = 0;
+            return;
+        end
+
+        %Only evaluate log where DTim>0; weight at DTim=0 is zero by
+        %construction (since threshold-d >= 0 and the smoothstep vanishes
+        %there), so the unused entries contribute nothing.
+        integrand    = zeros(size(Dim));
+        safe         = DTim > 0;
+        integrand(safe) = Dim(safe) .* log(Dim(safe) ./ DTim(safe));
+
+        TI = sum(w(:) .* integrand(:)) / Wsum / Pmax;
+
+    otherwise
+        error('transinfo: unknown method ''%s'' (use ''hard'' or ''soft'').', method);
 end
 
-integrand = Dim .* log(Dim ./ DTim);
-TI = sum(integrand(domain));
+end
 
-TI = TI / Acount / Pmax; %normalization
 
+function w = soft_weight(x, threshold, delta)
+%Cubic Hermite smoothstep:
+%   w = 0           for x <= threshold - delta
+%   w = 1           for x >= threshold + delta
+%   w = smooth      for threshold - delta < x < threshold + delta
+%with w'=0 at both endpoints so the composition w(Dim(theta)) is C^1 in
+%theta away from a zero-measure set.
+if delta <= 0
+    %Degenerate to hard indicator
+    w = double(x > threshold);
+    return;
+end
+t = (x - (threshold - delta)) / (2*delta);
+t = max(0, min(1, t));
+w = t .* t .* (3 - 2*t);
+end
