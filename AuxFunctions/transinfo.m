@@ -1,9 +1,10 @@
 function TI=transinfo(imdata,Atform,Dthresh,Pmax,option)
 %imdata - original image
 %Atform - Matrix defining 2D affine transformation
-%Dthresh - anything above min(Dthresh,0) of original image will be counted in domain
+%Dthresh - int 0to 255. anything above min(Dthresh,0) of original image will be counted in domain
 %Pmax - normalize by TI Pmax. if Pmax=0, normalize by max value of imdata.
 
+imdata=double(imdata);
 [M,N] = size(imdata);
 tform = affine2d(Atform);
 
@@ -30,8 +31,9 @@ Timdata=imwarp(Timdata,outDomain,affine2d(),'OutputView',intersection);
 %are set to zero. These are ignored in the integral since they are outside
 %of Dtilde
 
-Dim  = double(imdata);
-DTim = double(Timdata);
+Dim = imdata;
+DTim = Timdata;
+Dthresh=Dthresh/255;
 
 if Pmax==0
     Pmax = max(max(Dim));

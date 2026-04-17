@@ -18,10 +18,10 @@ else
         for j=1:M
             if min(i*M,j*N)>max((i-1)*M,(j-1)*N)
                 lam=min(i/N,j/M) - max((i-1)/N,(j-1)/M);
-                my_sum=my_sum+lam*(v1(i)-v2(j))^2;
-            end
+                my_sum=my_sum+lam*(v1(i)-v2(j))^2;   
+            end             
+            res=sqrt(my_sum);   
         end
     end
-    res=sqrt(my_sum);
 
 end
