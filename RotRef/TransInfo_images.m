@@ -109,47 +109,73 @@ function TransInfo_images(topFolder)
 
             %Stores TI for all centers in the grid
             TIcenter=zeros(NXmax,NYmax,length(thetavals));
-            
-            
+            COVcenter=zeros(NXmax,NYmax,length(thetavals));
+
+            %Candidates whose transformed domain overlaps less than
+            %COVthresh of the original flower's domain are rejected:
+            %transinfo's TI is an *average* over that overlap, so a
+            %wrong-but-far center that rotates most of the flower out of
+            %its own footprint can leave only a handful of leftover
+            %pixels whose average divergence is spuriously small,
+            %mimicking a true symmetry center. See transinfo.m's
+            %coverage output for details.
+            COVthresh=0.7;
+
             for llx=1:NXmax
                 b(1)=xshifts(llx)/npskip;
                 for kky=1:NYmax
                     b(2)=yshifts(kky)/npskip;
-                    
+
                     %shift right and up
                     Atb=[1,0,0;0,1,0;-b(1),-b(2),1];
                     AtbI=[1,0,0;0,1,0;b(1),b(2),1];
-                    
+
                     for mth=1:length(thetavals)
                         theta=thetavals(mth);
                         %rotate theta ccw about origin
                         Arot=[cos(theta), -sin(theta), 0; sin(theta), cos(theta), 0; 0, 0, 1];
                         %ArotI=[cos(theta), sin(theta), 0; -sin(theta), cos(theta), 0; 0, 0, 1];
-            
-                        
+
+
                         Atform=Atb*Arot*AtbI; %transforms right multiplied, so leftmost is carried out first
-                        TIcenter(llx,kky,mth)=transinfo(imdata(1:npskip:end,1:npskip:end),Atform,Dthresh,Pmax);
+                        [TIcenter(llx,kky,mth),COVcenter(llx,kky,mth)]=transinfo(imdata(1:npskip:end,1:npskip:end),Atform,Dthresh,Pmax);
                     end
-                    
+
                 end
-                
+
             end
-            
+
             %figure;imagesc(xshifts,yshifts,TIcenter(:,:,1)')
             %figure;imagesc(xshifts,yshifts,(max(TIcenter,[],3)-min(TIcenter,[],3))')
             %figure;imagesc(xshifts,yshifts,sum(abs(diff(TIcenter,[],3)).^2,3)')
-            
+
             %arr=sum(abs(diff(TIcenter,[],3)).^2,3)';
+
+            TIcenterMasked=TIcenter;
+            TIcenterMasked(COVcenter<COVthresh)=Inf;
 
             %For each center point in the grid, find the minimum
             for rarr=1:NYmax
                 for carr=1:NXmax
-                    arr(rarr,carr)=min(TIcenter(rarr,carr,:));
+                    arr(rarr,carr)=min(TIcenterMasked(rarr,carr,:));
                 end
             end
-            
+
             %arr=TIcenter;
             minimum=min(min(arr)); %Find the minimum of the mins
+            if ~isfinite(minimum)
+                %No candidate anywhere in the grid kept enough of the
+                %flower's domain; fall back to the unmasked search
+                %rather than erroring out.
+                warning('TransInfo_images:noCoverage', ...
+                    'No candidate center reached %.0f%% domain coverage; falling back to unmasked TI.', COVthresh*100);
+                for rarr=1:NYmax
+                    for carr=1:NXmax
+                        arr(rarr,carr)=min(TIcenter(rarr,carr,:));
+                    end
+                end
+                minimum=min(min(arr));
+            end
             [xidmax,yidmax]=find(arr==minimum,1); %index of center
             %xidmax=mod(xidmaxtmp,NXmax);
             rxc=xshifts(xidmax); %center value in relation to midpoint
@@ -164,50 +190,69 @@ function TransInfo_images(topFolder)
             
             TIx=zeros(1,NXmax);
             TIy=zeros(NYmax,1);
-            
+            COVx=zeros(1,NXmax);
+            COVy=zeros(NYmax,1);
+
             Ary=[1,0,0;0,-1,0;0,0,1]; %Affine transformation reflecting across x-axis (y mapsto -y)
             Arx=[-1,0,0;0,1,0;0,0,1]; %Affine transformation reflecting across y-axis (x mapsto -x)
-            
+
             %shift in x and reflect across y-axis
             for llx=1:NXmax
                     b=[xshifts(llx),0];
                     Atb=[1,0,0;0,1,0;-b(1),-b(2),1];
                     AtbI=[1,0,0;0,1,0;b(1),b(2),1];
                     Atx=Atb*Arx*AtbI;
-                    
-                    
-                    TIx(llx)=transinfo(imdata,Atx,Dthresh,Pmax);
-             
+
+
+                    [TIx(llx),COVx(llx)]=transinfo(imdata,Atx,Dthresh,Pmax);
+
             end
-            
+
             %shift in y and reflect across x-axis
             for kky=1:NYmax
                     b=[0,yshifts(kky)];
-                    
+
                     Atb=[1,0,0;0,1,0;-b(1),-b(2),1];
                     AtbI=[1,0,0;0,1,0;b(1),b(2),1];
                     Aty=Atb*Ary*AtbI;
-                    
-                    TIy(kky)=transinfo(imdata,Aty,Dthresh,Pmax);
+
+                    [TIy(kky),COVy(kky)]=transinfo(imdata,Aty,Dthresh,Pmax);
             end
-                
-            
-            %center will be at min of TI
-            [pks,xlocs,~,~]=findpeaks(-TIx);
+
+
+            %center will be at min of TI. Reject candidates below
+            %COVthresh (defined above, in the rotation-center search) the
+            %same way, falling back to the unmasked TIx/TIy if none
+            %qualify.
+            TIxMasked=TIx;
+            TIxMasked(COVx<COVthresh)=Inf;
+            if ~isfinite(min(TIxMasked))
+                warning('TransInfo_images:noCoverage', ...
+                    'No x-reflection candidate reached %.0f%% domain coverage; falling back to unmasked TI.', COVthresh*100);
+                TIxMasked=TIx;
+            end
+            [pks,xlocs,~,~]=findpeaks(-TIxMasked);
             %Pad peaks and indices to include endpoints
-            pks=horzcat(TIx(1),-pks,TIx(end));
-            xlocs=horzcat(1,xlocs,length(-TIx));
+            pks=horzcat(TIxMasked(1),-pks,TIxMasked(end));
+            xlocs=horzcat(1,xlocs,length(-TIxMasked));
             %figure;findpeaks(-TIx,xshifts,'Annotate','extents')
             %title('x center')
             [~,nxc]=min(pks);
             bxc=xshifts(xlocs(nxc)); %xshift in pixels
-            
-            [pks,ylocs,~,~]=findpeaks(-TIy);
+
+            TIyMasked=TIy;
+            TIyMasked(COVy<COVthresh)=Inf;
+            if ~isfinite(min(TIyMasked))
+                warning('TransInfo_images:noCoverage', ...
+                    'No y-reflection candidate reached %.0f%% domain coverage; falling back to unmasked TI.', COVthresh*100);
+                TIyMasked=TIy;
+            end
+            [pks,ylocs,~,~]=findpeaks(-TIyMasked);
             pks=pks';
             ylocs=ylocs';
             %Pad peaks and indices to include endpoints
-            pks=horzcat(TIy(1),-pks,TIy(end));
-            ylocs=horzcat(1,ylocs,length(-TIy));
+            pks=horzcat(TIyMasked(1),-pks,TIyMasked(end));
+            ylocs=horzcat(1,ylocs,length(-TIyMasked));
             %figure;findpeaks(-TIy,yshifts,'Annotate','extents')
             %title('y center')
             [~,nyc]=min(pks);

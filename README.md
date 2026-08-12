@@ -1,5 +1,5 @@
 # TransInfo
-Matlab script to automatically compute the symmetry of image data using *transformation information (TI)*. The symmetries are then compared using either principle component analysis (PCA) or a computationally tractable version of Gromov-Wasserstein distance, known as GW-tau (for more information about GW-tau, see www.github.com/kravtsova2/GWtau).
+Matlab (version R2025b) script to automatically compute the symmetry of image data using *transformation information (TI)*. The symmetries are then compared using either principle component analysis (PCA) or a computationally tractable version of Gromov-Wasserstein distance, known as GW-tau (for more information about GW-tau, see www.github.com/kravtsova2/GWtau).
 
 ## User instructions:
 

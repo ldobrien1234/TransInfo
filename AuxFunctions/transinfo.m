@@ -1,9 +1,22 @@
-function TI=transinfo(imdata,Atform,Dthresh,Pmax,option)
+function [TI,coverage]=transinfo(imdata,Atform,Dthresh,Pmax,option)
 %imdata - original image
 %Atform - Matrix defining 2D affine transformation
 %Dthresh - int 0 to 255. Domain cutoff: pixels whose value exceeds
 %          Dthresh count as flower (i.e. inside the domain D).
 %Pmax - normalize by TI Pmax. if Pmax=0, normalize by max value of imdata.
+%coverage - (optional) fraction of the original domain D (pixels with
+%          Dim > Dthresh) that survives intersection with the transformed
+%          domain DT (pixels with DTim > Dthresh). TI is an *average*
+%          divergence over that intersection, so when a transform pushes
+%          most of the flower out of its original footprint, the
+%          intersection can shrink to a handful of unrepresentative
+%          pixels and TI becomes small for the wrong reason (too little
+%          domain left, not genuine similarity). Callers doing a
+%          minimization search over candidate transforms (e.g. finding a
+%          rotation/reflection center) should treat low-coverage
+%          candidates as unreliable rather than as genuine minima -- see
+%          compare_centers_geomean.m and TransInfo_images.m for example
+%          usage.
 %option - (optional) selects the domain-masking method. Default: 'hard'.
 %   'hard' : hard indicator mask, domain = {Dim > Dthresh & DTim > Dthresh}.
 %            Fast. Under noise, however, individual pixels cross the
@@ -42,7 +55,6 @@ end
 %(users supply both on the [0,255] scale; internally Dim/DTim are [0,1]).
 delta = delta/255;
 
-imdata=double(imdata);
 [M,N] = size(imdata);
 tform = affine2d(Atform);
 
@@ -69,15 +81,14 @@ Timdata=imwarp(Timdata,outDomain,affine2d(),'OutputView',intersection);
 %are set to zero. These are ignored in the integral since they are outside
 %of Dtilde
 
-Dim = imdata;
-DTim = Timdata;
-Dthresh=Dthresh/255;
+Dim = double(imdata);
+DTim = double(Timdata);
 
 if Pmax==0
     Pmax = max(max(Dim));
 end
 
-threshold = max(Dthresh,0);
+threshold = max(Dthresh,0)/255;
 
 switch lower(method)
     case 'hard'
@@ -85,15 +96,18 @@ switch lower(method)
         %rational-angle spikes under noise.
         domain = (Dim > threshold) & (DTim > threshold);
         Acount = sum(domain(:));
+        Dcount = sum(Dim(:) > threshold);
 
         if Acount == 0
             TI = 0;
+            coverage = 0;
             return;
         end
 
         integrand = Dim .* log(Dim ./ DTim);
         TI = sum(integrand(domain));
         TI = TI / Acount / Pmax;
+        coverage = Acount / max(Dcount, 1);
 
     case 'soft'
         %Soft cubic-Hermite smoothstep weight. Requires threshold-delta>=0
@@ -106,9 +120,11 @@ switch lower(method)
         wDT = soft_weight(DTim, threshold, d);
         w   = wD .* wDT;
         Wsum = sum(w(:));
+        WDsum = sum(wD(:));
 
         if Wsum == 0
             TI = 0;
+            coverage = 0;
             return;
         end
 
@@ -120,6 +136,7 @@ switch lower(method)
         integrand(safe) = Dim(safe) .* log(Dim(safe) ./ DTim(safe));
 
         TI = sum(w(:) .* integrand(:)) / Wsum / Pmax;
+        coverage = Wsum / max(WDsum, eps);
 
     otherwise
         error('transinfo: unknown method ''%s'' (use ''hard'' or ''soft'').', method);
