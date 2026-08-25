@@ -15,7 +15,7 @@ function [TI,coverage]=transinfo(imdata,Atform,Dthresh,Pmax,option)
 %          minimization search over candidate transforms (e.g. finding a
 %          rotation/reflection center) should treat low-coverage
 %          candidates as unreliable rather than as genuine minima -- see
-%          compare_centers_geomean.m and TransInfo_images.m for example
+%          compare_centers_centroid.m and TransInfo_images.m for example
 %          usage.
 %option - (optional) selects the domain-masking method. Default: 'hard'.
 %   'hard' : hard indicator mask, domain = {Dim > Dthresh & DTim > Dthresh}.

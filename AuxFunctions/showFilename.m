@@ -2,11 +2,12 @@
 function output_txt = showFilename(event_obj, fig)
 %SHOWFILENAMEF Custom data tip function to display file names.
 %
-%   OUTPUT_TXT = SHOWFILENAMEFROMFIGURE(EVENT_OBJ, FIG) returns a cell
-%   array of text to be displayed in a data tip when the user clicks on a
-%   point in a scatter plot. This function assumes that the full list of
-%   file names corresponding to each data point is stored in the
-%   'UserData' property of the figure FIG.
+%   OUTPUT_TXT = SHOWFILENAME(EVENT_OBJ, FIG) returns a cell array of
+%   text to be displayed in a data tip when the user clicks on a point
+%   in a scatter (or scatter3) plot. This function assumes that the full
+%   list of file names corresponding to each data point is stored in the
+%   'UserData' property of the figure FIG, in the same order the points
+%   were plotted.
 %
 %   INPUTS:
 %       event_obj - A handle to the data cursor event object (passed
@@ -28,11 +29,12 @@ function output_txt = showFilename(event_obj, fig)
 %       fig.UserData = filenames;
 %       dcm = datacursormode(fig);
 %       dcm.Enable = 'on';
-%       dcm.UpdateFcn = @(src, event) showFilenameFromFigure(event, fig);
+%       dcm.UpdateFcn = @(src, event) showFilename(event, fig);
 %
 %   See also DATACURSORMODE, OPENFIG, USERDATA.
 
-    % Find all scatter handles in plotting order
+    % Find all scatter handles (scatter and scatter3 both produce this
+    % Type) in plotting order
     scatterHandles = findobj(fig, 'Type', 'Scatter');
     scatterHandles = flipud(scatterHandles); % Ensure plotting order
 

@@ -1,18 +1,19 @@
-function results = compare_centers_geomean(target, varargin)
-%% Compare flower centers: TI rotation vs. TI reflection vs. weighted geometric mean
+function results = compare_centers_centroid(target, varargin)
+%% Compare flower centers: TI rotation vs. TI reflection vs. weighted centroid
 %TransInfo_images.m (in RotRef) locates two centers for each flower image:
 %   1) the center about which rotational TI is minimized ("rotation center")
 %   2) the center about which reflectional TI is minimized ("reflection center")
 %This script adds a third, much cheaper estimate of the center: a
-%function-weighted geometric mean of the pixel coordinates, where each
-%pixel is weighted by weightFun(intensity) and only pixels inside the
-%flower domain (intensity > Dthresh, matching transinfo's own domain
-%definition) contribute. It then plots all three centers on top of each
-%image and reports the pairwise distances between them.
+%function-weighted centroid of the pixel coordinates (i.e. the weighted
+%arithmetic mean sum(w.*coord)/sum(w)), where each pixel is weighted by
+%weightFun(intensity) and only pixels inside the flower domain (intensity
+%> Dthresh, matching transinfo's own domain definition) contribute. It
+%then plots all three centers on top of each image and reports the
+%pairwise distances between them.
 %
-%   results = compare_centers_geomean()
-%   results = compare_centers_geomean(target)
-%   results = compare_centers_geomean(target, 'Name', Value, ...)
+%   results = compare_centers_centroid()
+%   results = compare_centers_centroid(target)
+%   results = compare_centers_centroid(target, 'Name', Value, ...)
 %
 %target - (optional) one of:
 %           - a path to a single image file
@@ -31,19 +32,24 @@ function results = compare_centers_geomean(target, varargin)
 %                 listing: 'first' (default) or 'random'.
 %  'Seed'      - random seed for 'Sample','random', for reproducibility.
 %  'WeightFun' - function handle applied to each pixel's grayscale value
-%                 to produce its geometric-mean weight. Default: @(v) v
+%                 to produce its centroid weight. Default: @(v) v
 %                 (i.e. weight by intensity itself).
 %
-%results - table with one row per image: the three centers, and the
-%           pairwise Euclidean distances between them (in pixels). Also
-%           written to experiments/results/center_comparison.csv and
-%           plotted alongside each image in experiments/plots.
+%results - table with one row per image: the three centers, the image's
+%           width/height (px), and the pairwise Euclidean distances
+%           between the centers, both in pixels and as a percentage of
+%           the image's diagonal (size-independent, for comparing across
+%           differently-sized images). Also written to
+%           experiments/results/center_comparison.csv (with histograms
+%           of the pairwise distances, pixel and percentage, saved as
+%           PNGs alongside it) and plotted alongside each image in
+%           experiments/plots.
 %
 %Examples:
-%   compare_centers_geomean('angiosperms', 'MaxImages', 5); %first 5 found
-%   compare_centers_geomean('angiosperms', 'MaxImages', 5, ...
+%   compare_centers_centroid('angiosperms', 'MaxImages', 5); %first 5 found
+%   compare_centers_centroid('angiosperms', 'MaxImages', 5, ...
 %       'Sample', 'random', 'Seed', 1); %5 random images
-%   compare_centers_geomean({'angiosperms/early_angiosperms/4_nymphaeaceae.png', ...
+%   compare_centers_centroid({'angiosperms/early_angiosperms/4_nymphaeaceae.png', ...
 %       'angiosperms/eudicots/some_flower.png'}); %hand-picked subset
 
 if nargin < 1 || isempty(target)
@@ -107,24 +113,25 @@ else
             files = files(idx);
         end
     else
-        error('compare_centers_geomean:badTarget', 'Could not find image or folder: %s', target);
+        error('compare_centers_centroid:badTarget', 'Could not find image or folder: %s', target);
     end
 end
 
 if isempty(files)
-    error('compare_centers_geomean:noImages', 'No .png/.jpg images found under: %s', fullTop);
+    error('compare_centers_centroid:noImages', 'No .png/.jpg images found under: %s', fullTop);
 end
 
-plotFolder = fullfile(fileparts(thisFile), 'plots');
-resultsFolder = fullfile(fileparts(thisFile), 'results');
+plotFolder = fullfile(fileparts(thisFile), 'plotsAll');
+resultsFolder = fullfile(fileparts(thisFile), 'results_all');
 if ~exist(plotFolder, 'dir'); mkdir(plotFolder); end
 if ~exist(resultsFolder, 'dir'); mkdir(resultsFolder); end
 
 names = strings(numel(files),1);
 rxcAll = zeros(numel(files),1); rycAll = zeros(numel(files),1);
 bxcAll = zeros(numel(files),1); bycAll = zeros(numel(files),1);
-gxcAll = zeros(numel(files),1); gycAll = zeros(numel(files),1);
-dRotGeo = zeros(numel(files),1); dRefGeo = zeros(numel(files),1); dRotRef = zeros(numel(files),1);
+cxcAll = zeros(numel(files),1); cycAll = zeros(numel(files),1);
+dRotCen = zeros(numel(files),1); dRefCen = zeros(numel(files),1); dRotRef = zeros(numel(files),1);
+imgWidthAll = zeros(numel(files),1); imgHeightAll = zeros(numel(files),1);
 
 for k = 1:numel(files)
     imgPath = fullfile(files(k).folder, files(k).name);
@@ -133,18 +140,20 @@ for k = 1:numel(files)
 
     imdata0 = imread(imgPath);
     imdata = im2gray(imdata0) + 1;
+    [M, N] = size(imdata);
 
     [rxc, ryc] = find_rotation_center(imdata, Dthresh, Pmax);
     [bxc, byc] = find_reflection_center(imdata, Dthresh, Pmax);
-    [gxc, gyc] = weighted_geomean_center(imdata, Dthresh, weightFun);
+    [cxc, cyc] = weighted_centroid_center(imdata, Dthresh, weightFun);
 
     names(k) = name;
     rxcAll(k) = rxc; rycAll(k) = ryc;
     bxcAll(k) = bxc; bycAll(k) = byc;
-    gxcAll(k) = gxc; gycAll(k) = gyc;
-    dRotGeo(k) = hypot(rxc-gxc, ryc-gyc);
-    dRefGeo(k) = hypot(bxc-gxc, byc-gyc);
+    cxcAll(k) = cxc; cycAll(k) = cyc;
+    dRotCen(k) = hypot(rxc-cxc, ryc-cyc);
+    dRefCen(k) = hypot(bxc-cxc, byc-cyc);
     dRotRef(k) = hypot(rxc-bxc, ryc-byc);
+    imgWidthAll(k) = N; imgHeightAll(k) = M;
 
     %Plot the image with all three centers marked
     h = figure('Visible', 'off');
@@ -154,8 +163,8 @@ for k = 1:numel(files)
     set(ax, 'YDir', 'reverse');
     plot(ax, rxc, ryc, 'ro', 'MarkerSize', 8, 'LineWidth', 1.5);
     plot(ax, bxc, byc, 'c*', 'MarkerSize', 8, 'LineWidth', 1.5);
-    plot(ax, gxc, gyc, 'gx', 'MarkerSize', 8, 'LineWidth', 1.5);
-    legend(ax, {'rotation center', 'reflection center', 'weighted geometric mean'}, ...
+    plot(ax, cxc, cyc, 'gx', 'MarkerSize', 8, 'LineWidth', 1.5);
+    legend(ax, {'rotation center', 'reflection center', 'weighted centroid'}, ...
         'Location', 'southoutside', 'TextColor', 'black', 'Color', 'white', 'Box', 'off');
     title(ax, name, 'Interpreter', 'none');
     hold(ax, 'off');
@@ -167,14 +176,46 @@ for k = 1:numel(files)
     close(h);
 end
 
-results = table(names, rxcAll, rycAll, bxcAll, bycAll, gxcAll, gycAll, dRotGeo, dRefGeo, dRotRef, ...
-    'VariableNames', {'image', 'rot_x', 'rot_y', 'ref_x', 'ref_y', 'geomean_x', 'geomean_y', ...
-    'dist_rot_geomean', 'dist_ref_geomean', 'dist_rot_ref'});
+%Diagonal-normalized distances, as a size-independent percentage: raw
+%pixel distances aren't comparable across images of different
+%dimensions, so also express each as a percentage of that image's
+%diagonal length (hypot(width,height)), which scales with both axes and
+%so, unlike normalizing by width or height alone, stays meaningful for
+%non-square images.
+imgDiagAll = hypot(imgWidthAll, imgHeightAll);
+dRotCenPct = 100 * dRotCen ./ imgDiagAll;
+dRefCenPct = 100 * dRefCen ./ imgDiagAll;
+dRotRefPct = 100 * dRotRef ./ imgDiagAll;
+
+results = table(names, rxcAll, rycAll, bxcAll, bycAll, cxcAll, cycAll, ...
+    imgWidthAll, imgHeightAll, dRotCen, dRefCen, dRotRef, dRotCenPct, dRefCenPct, dRotRefPct, ...
+    'VariableNames', {'image', 'rot_x', 'rot_y', 'ref_x', 'ref_y', 'centroid_x', 'centroid_y', ...
+    'img_width', 'img_height', 'dist_rot_centroid', 'dist_ref_centroid', 'dist_rot_ref', ...
+    'dist_rot_centroid_pct', 'dist_ref_centroid_pct', 'dist_rot_ref_pct'});
 
 writetable(results, fullfile(resultsFolder, 'center_comparison.csv'));
 
-fprintf('\nMean distance rotation-center to geometric mean: %.2f px\n', mean(dRotGeo, 'omitnan'));
-fprintf('Mean distance reflection-center to geometric mean: %.2f px\n', mean(dRefGeo, 'omitnan'));
+%Histograms of the pairwise distances just written to center_comparison.csv,
+%both in raw pixels and as a percentage of image diagonal.
+distFields = {'dist_rot_centroid', 'dist_ref_centroid', 'dist_rot_ref', ...
+    'dist_rot_centroid_pct', 'dist_ref_centroid_pct', 'dist_rot_ref_pct'};
+distLabels = {'rotation center to weighted centroid', ...
+    'reflection center to weighted centroid', 'rotation center to reflection center', ...
+    'rotation center to weighted centroid', ...
+    'reflection center to weighted centroid', 'rotation center to reflection center'};
+distXLabels = {'distance (px)', 'distance (px)', 'distance (px)', ...
+    'distance (% of image diagonal)', 'distance (% of image diagonal)', 'distance (% of image diagonal)'};
+for i = 1:numel(distFields)
+    h = figure('Visible', 'off');
+    histogram(results.(distFields{i}), 'NumBins', 30);
+    xlabel(distXLabels{i}); ylabel('count');
+    title(distLabels{i}, 'Interpreter', 'none');
+    exportgraphics(h, fullfile(resultsFolder, [distFields{i}, '_hist.png']));
+    close(h);
+end
+
+fprintf('\nMean distance rotation-center to centroid: %.2f px\n', mean(dRotCen, 'omitnan'));
+fprintf('Mean distance reflection-center to centroid: %.2f px\n', mean(dRefCen, 'omitnan'));
 fprintf('Mean distance rotation-center to reflection-center: %.2f px\n', mean(dRotRef, 'omitnan'));
 
 end
@@ -189,7 +230,7 @@ if ~isfile(tp)
     tp = fullfile(repoRoot, tp);
 end
 if ~isfile(tp)
-    error('compare_centers_geomean:badTarget', 'Could not find image file: %s', t);
+    error('compare_centers_centroid:badTarget', 'Could not find image file: %s', t);
 end
 d = dir(tp);
 entry = d(1);
@@ -278,7 +319,7 @@ Arx = [-1,0,0; 0,1,0; 0,0,1]; %reflect across y-axis (x -> -x)
 Ary = [1,0,0; 0,-1,0; 0,0,1]; %reflect across x-axis (y -> -y)
 
 %See find_rotation_center for why low-coverage candidates are rejected.
-COVthresh = 0.7;
+COVthresh = 0.5;
 
 TIx = zeros(1, NXmax);
 COVx = zeros(1, NXmax);
@@ -324,12 +365,12 @@ idx = locs(n);
 end
 
 
-function [gxc, gyc] = weighted_geomean_center(imdata, Dthresh, weightFun)
-%Function-weighted geometric mean of the pixel coordinates: each pixel
-%(x,y) inside the flower domain (grayscale intensity > Dthresh, matching
-%transinfo's own domain definition) is weighted by weightFun(intensity).
-%Coordinates are 1-based pixel indices, so they are always positive and
-%log() is well-defined.
+function [cxc, cyc] = weighted_centroid_center(imdata, Dthresh, weightFun)
+%Function-weighted centroid (weighted arithmetic mean) of the pixel
+%coordinates: each pixel (x,y) inside the flower domain (grayscale
+%intensity > Dthresh, matching transinfo's own domain definition) is
+%weighted by weightFun(intensity), and the center is
+%sum(w.*coord)/sum(w) over each coordinate.
 [M, N] = size(imdata);
 [xx, yy] = meshgrid(1:N, 1:M);
 
@@ -339,13 +380,13 @@ w(intensity <= Dthresh) = 0;
 
 Wsum = sum(w(:));
 if Wsum <= 0
-    gxc = NaN;
-    gyc = NaN;
-    warning('weighted_geomean_center:emptyDomain', ...
+    cxc = NaN;
+    cyc = NaN;
+    warning('weighted_centroid_center:emptyDomain', ...
         'No pixels above Dthresh (or all weights <= 0); returning NaN.');
     return;
 end
 
-gxc = exp(sum(w(:) .* log(xx(:))) / Wsum);
-gyc = exp(sum(w(:) .* log(yy(:))) / Wsum);
+cxc = sum(w(:) .* xx(:)) / Wsum;
+cyc = sum(w(:) .* yy(:)) / Wsum;
 end
