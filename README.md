@@ -38,7 +38,7 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 
 - showFilename.m: Auxiliary function used to create interactive plots in load_plots.m
 
-- transifo.m: Function for computing transformation information associated to a given transformation
+- transinfo.m: Function for computing transformation information associated to a given transformation
 
 - vec_geo_dist.m and wass_sorted.m: Auxiliary functions required for gwtau_embed_all.m. They were downloaded from the repository at www.github.com/kravtsova2/GWtau
 
@@ -61,6 +61,8 @@ One can also use the file my_kmeans.m. Upon running the code, the user will be p
 - load_plots.m: Loads interactive scatter plots from the folders pcaPlots, all_pcaPlots, and gwtau_plots, where clicking on a data point will enable to user to see the image associated with the point.
 
 - my_kmeans.m: Performs k-means clustering on the data in scatter plots from folders pcaPlots, all_pcaPlots, and gwtau_plots.
+
+### experiments: Cross-checks a cheap pixel-intensity-weighted centroid against the rotation/reflection centers found in RotRef, to see how good an approximation it is. See [experiments/README.md](experiments/README.md) for details.
 
 ### TransScale: Files and data used to perform analysis of fractal symmetry of simulated ferns
 

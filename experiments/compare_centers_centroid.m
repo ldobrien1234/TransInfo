@@ -40,10 +40,10 @@ function results = compare_centers_centroid(target, varargin)
 %           between the centers, both in pixels and as a percentage of
 %           the image's diagonal (size-independent, for comparing across
 %           differently-sized images). Also written to
-%           experiments/results/center_comparison.csv (with histograms
+%           experiments/results_all/center_comparison.csv (with histograms
 %           of the pairwise distances, pixel and percentage, saved as
 %           PNGs alongside it) and plotted alongside each image in
-%           experiments/plots.
+%           experiments/plotsAll. See experiments/README.md for details.
 %
 %Examples:
 %   compare_centers_centroid('angiosperms', 'MaxImages', 5); %first 5 found
