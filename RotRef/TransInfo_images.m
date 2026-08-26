@@ -72,8 +72,8 @@ function TransInfo_images(topFolder)
             %index vectors
             %(1,1) is at the top left of the image 
             % coordinates to search through rectangle in the middle of the image
-            xcoord=(pxc-floor(M/4)):(pxc+ceil(M/4)); %positive right, same as indices
-            ycoord=(pyc-floor(N/4)):(pyc+ceil(N/4)); %positive up, backwards from indices
+            xcoord=(pxc-floor(N/4)):(pxc+ceil(N/4)); %positive right, same as indices
+            ycoord=(pyc-floor(M/4)):(pyc+ceil(M/4)); %positive up, backwards from indices
             
             
             %figure;imshow(imdata)
