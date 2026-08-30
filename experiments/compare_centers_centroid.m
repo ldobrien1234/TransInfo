@@ -161,9 +161,9 @@ for k = 1:numel(files)
     image(ax, imdata0);
     axis(ax, 'image'); axis(ax, 'off');
     set(ax, 'YDir', 'reverse');
-    plot(ax, rxc, ryc, 'ro', 'MarkerSize', 8, 'LineWidth', 1.5);
-    plot(ax, bxc, byc, 'c*', 'MarkerSize', 8, 'LineWidth', 1.5);
-    plot(ax, cxc, cyc, 'gx', 'MarkerSize', 8, 'LineWidth', 1.5);
+    plot(ax, rxc, ryc, 'ro', 'MarkerSize', 16, 'LineWidth', 3);
+    plot(ax, bxc, byc, 'c*', 'MarkerSize', 16, 'LineWidth', 3);
+    plot(ax, cxc, cyc, 'gx', 'MarkerSize', 16, 'LineWidth', 3);
     legend(ax, {'rotation center', 'reflection center', 'weighted centroid'}, ...
         'Location', 'southoutside', 'TextColor', 'black', 'Color', 'white', 'Box', 'off');
     title(ax, name, 'Interpreter', 'none');

@@ -1,0 +1,4 @@
+metric,pair,n,mean_pct,median_pct,sd_pct,p90_pct,p95_pct,pct_images_under_5pct,pct_images_under_10pct
+dist_rot_centroid_pct,rotation center to weighted centroid,171,2.24,1.43,2.96,3.98,5.82,93.6,96.5
+dist_ref_centroid_pct,reflection center to weighted centroid,171,3.18,2.75,2.09,6.09,6.92,81.9,100
+dist_rot_ref_pct,rotation center to reflection center,171,3.91,3.57,3.52,7.41,9.95,69.6,95.3
