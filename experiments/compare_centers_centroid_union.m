@@ -28,7 +28,9 @@ function results = compare_centers_centroid_union(target, varargin)
 %           - a cell array (or string array) of image file paths, to
 %             process an explicit, hand-picked subset
 %          Relative paths are resolved against the repository root (the
-%          parent of this file's folder). Default: 'angiosperms'.
+%          parent of this file's folder), and, failing that, against this
+%          file's own folder (experiments/), so e.g. 'other_images' finds
+%          experiments/other_images. Default: 'angiosperms'.
 %
 %Name-Value options:
 %  'MaxImages' - cap on the number of images to process when target is a
@@ -40,16 +42,36 @@ function results = compare_centers_centroid_union(target, varargin)
 %  'WeightFun' - function handle applied to each pixel's grayscale value
 %                 to produce its centroid weight. Default: @(v) v
 %                 (i.e. weight by intensity itself).
+%  'MaxDim'    - cap on the larger dimension (px) of the image used for
+%                 the center searches: an image bigger than this is
+%                 downscaled by maxDim/max(width,height) before the
+%                 searches, and the centers found are mapped back to the
+%                 original image's coordinates. The grid search costs
+%                 about one pass over the image per candidate transform
+%                 (21*21*11 of them for rotation), so this is the knob
+%                 that makes full-resolution photographs tractable, at
+%                 the price of locating the centers on a coarser grid.
+%                 The weighted centroid is computed on the same
+%                 downscaled image, so all three centers see identical
+%                 data. Default: Inf (no downscaling).
+%  'OutputSuffix' - suffix naming the output folders, so a run on a
+%                 different image set doesn't overwrite an earlier one:
+%                 results go to experiments/results<suffix> and plots to
+%                 experiments/plots<suffix>, both created if needed.
+%                 Default: 'Union' (i.e. resultsUnion/ and plotsUnion/).
 %
-%results - table with one row per image: the three centers, the image's
-%           width/height (px), and the pairwise Euclidean distances
+%results - table with one row per image: the three centers (in the
+%           original image's coordinates), the image's width/height (px),
+%           the scale factor the searches ran at (1 unless 'MaxDim'
+%           downscaled it), and the pairwise Euclidean distances
 %           between the centers, both in pixels and as a percentage of
 %           the image's diagonal (size-independent, for comparing across
 %           differently-sized images). Also written to
-%           experiments/resultsUnion/center_comparison.csv (with histograms
-%           of the pairwise distances, pixel and percentage, saved as
-%           PNGs alongside it) and plotted alongside each image in
-%           experiments/plotsUnion. See experiments/README.md for details.
+%           experiments/results<OutputSuffix>/center_comparison.csv (with
+%           histograms of the pairwise distances, pixel and percentage,
+%           saved as PNGs alongside it) and plotted alongside each image in
+%           experiments/plots<OutputSuffix>. See experiments/README.md for
+%           details.
 %
 %Examples:
 %   compare_centers_centroid_union('angiosperms', 'MaxImages', 5); %first 5 found
@@ -57,6 +79,11 @@ function results = compare_centers_centroid_union(target, varargin)
 %       'Sample', 'random', 'Seed', 1); %5 random images
 %   compare_centers_centroid_union({'angiosperms/early_angiosperms/4_nymphaeaceae.png', ...
 %       'angiosperms/eudicots/some_flower.png'}); %hand-picked subset
+%   compare_centers_centroid_union('other_images', 'OutputSuffix', 'Other');
+%       %the experiments/other_images folder, written to
+%       %experiments/resultsOther and experiments/plotsOther
+%   compare_centers_centroid_union('other_images', 'MaxDim', 800, ...
+%       'OutputSuffix', 'Other'); %same, but search at <=800 px per side
 
 if nargin < 1 || isempty(target)
     target = 'angiosperms';
@@ -67,11 +94,15 @@ addParameter(p, 'MaxImages', Inf, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'Sample', 'first', @(x) any(strcmpi(x, {'first','random'})));
 addParameter(p, 'Seed', [], @(x) isempty(x) || isnumeric(x));
 addParameter(p, 'WeightFun', @(v) v, @(x) isa(x, 'function_handle'));
+addParameter(p, 'MaxDim', Inf, @(x) isnumeric(x) && isscalar(x) && x > 0);
+addParameter(p, 'OutputSuffix', 'Union', @(x) (ischar(x) || isstring(x)) && ~isempty(char(x)));
 parse(p, varargin{:});
 maxImages = p.Results.MaxImages;
 sampleMode = lower(p.Results.Sample);
 seed = p.Results.Seed;
 weightFun = p.Results.WeightFun;
+maxDim = p.Results.MaxDim;
+outputSuffix = char(p.Results.OutputSuffix);
 
 Dthresh = 15;
 Pmax = 256;
@@ -97,12 +128,23 @@ else
     if ~(isfile(targetPath) || isfolder(targetPath))
         targetPath = fullfile(repoRoot, target);
     end
+    %Fall back to this file's folder, so image sets kept alongside this
+    %script (e.g. experiments/other_images) can be named directly.
+    if ~(isfile(targetPath) || isfolder(targetPath))
+        targetPath = fullfile(fileparts(thisFile), target);
+    end
 
     if isfile(targetPath)
         files = dir(targetPath);
         fullTop = files(1).folder;
     elseif isfolder(targetPath)
-        fullTop = targetPath;
+        %dir()'s .folder fields are always absolute, so fullTop has to be
+        %absolute too for the prefix strip below to fire. targetPath is
+        %still relative whenever it resolved against the working directory
+        %(e.g. running from experiments/ with target 'other_images'), and
+        %dir('.') of the folder reports its absolute path.
+        d = dir(targetPath);
+        fullTop = d(1).folder;
         pngFiles = dir(fullfile(fullTop, '**', '*.png'));
         jpgFiles = dir(fullfile(fullTop, '**', '*.jpg'));
         files = [pngFiles; jpgFiles];
@@ -127,8 +169,8 @@ if isempty(files)
     error('compare_centers_centroid_union:noImages', 'No .png/.jpg images found under: %s', fullTop);
 end
 
-plotFolder = fullfile(fileparts(thisFile), 'plotsUnion');
-resultsFolder = fullfile(fileparts(thisFile), 'resultsUnion');
+plotFolder = fullfile(fileparts(thisFile), ['plots', outputSuffix]);
+resultsFolder = fullfile(fileparts(thisFile), ['results', outputSuffix]);
 if ~exist(plotFolder, 'dir'); mkdir(plotFolder); end
 if ~exist(resultsFolder, 'dir'); mkdir(resultsFolder); end
 
@@ -138,6 +180,7 @@ bxcAll = zeros(numel(files),1); bycAll = zeros(numel(files),1);
 cxcAll = zeros(numel(files),1); cycAll = zeros(numel(files),1);
 dRotCen = zeros(numel(files),1); dRefCen = zeros(numel(files),1); dRotRef = zeros(numel(files),1);
 imgWidthAll = zeros(numel(files),1); imgHeightAll = zeros(numel(files),1);
+scaleAll = ones(numel(files),1);
 
 for k = 1:numel(files)
     imgPath = fullfile(files(k).folder, files(k).name);
@@ -145,12 +188,29 @@ for k = 1:numel(files)
     fprintf('Processing %s ...\n', imgPath);
 
     imdata0 = imread(imgPath);
-    imdata = im2gray(imdata0) + 1;
-    [M, N] = size(imdata);
+    imdataFull = im2gray(imdata0) + 1;
+    [M, N] = size(imdataFull);
+
+    %Optionally downscale before the center searches, whose cost grows with
+    %the pixel count (one pass over the image per candidate transform).
+    %Centers are found on the small image and mapped back below, so every
+    %reported coordinate is in the original image's pixel grid.
+    imdata = imdataFull;
+    scale = 1;
+    if isfinite(maxDim) && max(M, N) > maxDim
+        scale = maxDim / max(M, N);
+        imdata = imresize(imdataFull, scale);
+        fprintf('  downscaled %dx%d -> %dx%d (scale %.4f) for the center searches\n', ...
+            N, M, size(imdata,2), size(imdata,1), scale);
+    end
 
     [rxc, ryc] = find_rotation_center(imdata, Dthresh, Pmax);
     [bxc, byc] = find_reflection_center(imdata, Dthresh, Pmax);
     [cxc, cyc] = weighted_centroid_center(imdata, Dthresh, weightFun);
+
+    rxc = upscale_coord(rxc, scale); ryc = upscale_coord(ryc, scale);
+    bxc = upscale_coord(bxc, scale); byc = upscale_coord(byc, scale);
+    cxc = upscale_coord(cxc, scale); cyc = upscale_coord(cyc, scale);
 
     names(k) = name;
     rxcAll(k) = rxc; rycAll(k) = ryc;
@@ -160,11 +220,18 @@ for k = 1:numel(files)
     dRefCen(k) = hypot(bxc-cxc, byc-cyc);
     dRotRef(k) = hypot(rxc-bxc, ryc-byc);
     imgWidthAll(k) = N; imgHeightAll(k) = M;
+    scaleAll(k) = scale;
 
     %Plot the image with all three centers marked
     h = figure('Visible', 'off');
     ax = axes(h); hold(ax, 'on');
     image(ax, imdata0);
+    %Single-channel files are indexed data, so they take the axes colormap
+    %(parula by default). Use a 256-entry grayscale map instead, both so the
+    %plot matches how the image is read and because uint8 indices run to 256
+    %and would clamp against parula's 64 rows. Truecolor (MxNx3) inputs
+    %ignore the colormap.
+    colormap(ax, gray(256));
     axis(ax, 'image'); axis(ax, 'off');
     set(ax, 'YDir', 'reverse');
     plot(ax, rxc, ryc, 'ro', 'MarkerSize', 16, 'LineWidth', 3);
@@ -175,7 +242,7 @@ for k = 1:numel(files)
     title(ax, name, 'Interpreter', 'none');
     hold(ax, 'off');
 
-    relativeFolder = erase(files(k).folder, fullTop);
+    relativeFolder = strip_prefix_folder(files(k).folder, fullTop);
     outFolder = fullfile(plotFolder, relativeFolder);
     if ~exist(outFolder, 'dir'); mkdir(outFolder); end
     exportgraphics(h, fullfile(outFolder, [char(name), '_centers.png']));
@@ -194,9 +261,9 @@ dRefCenPct = 100 * dRefCen ./ imgDiagAll;
 dRotRefPct = 100 * dRotRef ./ imgDiagAll;
 
 results = table(names, rxcAll, rycAll, bxcAll, bycAll, cxcAll, cycAll, ...
-    imgWidthAll, imgHeightAll, dRotCen, dRefCen, dRotRef, dRotCenPct, dRefCenPct, dRotRefPct, ...
+    imgWidthAll, imgHeightAll, scaleAll, dRotCen, dRefCen, dRotRef, dRotCenPct, dRefCenPct, dRotRefPct, ...
     'VariableNames', {'image', 'rot_x', 'rot_y', 'ref_x', 'ref_y', 'centroid_x', 'centroid_y', ...
-    'img_width', 'img_height', 'dist_rot_centroid', 'dist_ref_centroid', 'dist_rot_ref', ...
+    'img_width', 'img_height', 'search_scale', 'dist_rot_centroid', 'dist_ref_centroid', 'dist_rot_ref', ...
     'dist_rot_centroid_pct', 'dist_ref_centroid_pct', 'dist_rot_ref_pct'});
 
 writetable(results, fullfile(resultsFolder, 'center_comparison.csv'));
@@ -240,6 +307,15 @@ if ~isfile(tp)
 end
 d = dir(tp);
 entry = d(1);
+end
+
+
+function c = upscale_coord(c, scale)
+%Map a pixel-center coordinate from the downscaled image back to the
+%original image's grid. imresize aligns the two grids at their outer
+%edges, so pixel center i of the small image sits at (i-0.5)/scale+0.5 in
+%the original. NaN (an empty centroid domain) passes through unchanged.
+c = (c - 0.5) / scale + 0.5;
 end
 
 
@@ -360,4 +436,19 @@ end
 
 cxc = sum(w(:) .* xx(:)) / Wsum;
 cyc = sum(w(:) .* yy(:)) / Wsum;
+end
+
+function rel = strip_prefix_folder(folder, fullTop)
+%Path of FOLDER relative to FULLTOP ('' when FOLDER is FULLTOP itself or
+%sits outside it). Stripping the prefix, rather than erasing every
+%occurrence of it as erase() does, keeps the result relative: an absolute
+%leftover would be concatenated by fullfile(), not treated as a root, and
+%would rebuild the whole source tree under the plot folder.
+rel = '';
+if strncmp(folder, fullTop, strlength(fullTop))
+    rel = char(extractAfter(folder, strlength(fullTop)));
+end
+while ~isempty(rel) && rel(1) == filesep
+    rel(1) = [];
+end
 end

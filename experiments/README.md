@@ -18,7 +18,7 @@ computed:
 
 | script | TI function | non-overlap handling | output folders |
 |---|---|---|---|
-| `compare_centers_centroid.m` | `transinfo.m` | averages over the **intersection** of the image domain and its transformed domain; rejects candidate centers whose domain coverage is too low (**coverage masking**, below) | `plotsAll/`, `results_all/` |
+| `compare_centers_centroid.m` | `transinfo.m` | averages over the **intersection** of the image domain and its transformed domain; rejects candidate centers whose domain coverage is too low (**coverage masking**, below) | `plotsAll/`, `resultsAll/` |
 | `compare_centers_centroid_union.m` | `transinfoUnion.m` | pads both images out to the **union** of their domains and sets non-overlapping padding to 1, so there is no shrinking-intersection failure mode and no coverage output to mask on | `plotsUnion/`, `resultsUnion/` |
 
 `summarize_center_comparison.m` is a third script that post-processes the
@@ -35,7 +35,41 @@ results = compare_centers_centroid({'angiosperms/early_angiosperms/4_nymphaeacea
     'angiosperms/eudicots/some_flower.png'});             % explicit, hand-picked subset
 ```
 
-`compare_centers_centroid_union.m` takes the same arguments.
+`compare_centers_centroid_union.m` takes the same arguments. Both scripts
+also accept:
+
+- `'OutputSuffix'` (default `'All'` for `compare_centers_centroid.m`,
+  `'Union'` for `compare_centers_centroid_union.m`) names the output folders
+  (`plots<suffix>/` and `results<suffix>/`, created if needed), so a run on a
+  different image set doesn't overwrite an earlier one.
+- `'MaxDim'` (default `Inf`, i.e. no downscaling) caps the larger dimension
+  of the image the center searches run on. A bigger image is downscaled by
+  `maxDim/max(width,height)` first, and the centers are mapped back to the
+  original image's coordinates, so results stay comparable across runs (the
+  plots are still drawn over the full-resolution image). The searches cost
+  about one pass over the image per candidate transform — 21×21×11 of them
+  for rotation — so this is what makes full-resolution photographs
+  tractable, at the price of locating the centers on a coarser grid. The
+  weighted centroid is computed on the same downscaled image, so all three
+  centers see identical data.
+
+Both scripts also resolve a
+relative `target` against this folder if it isn't found under the repository
+root, so an image set kept alongside the scripts can be named directly:
+
+```matlab
+results = compare_centers_centroid('other_images', 'OutputSuffix', 'Other');
+% experiments/other_images -> experiments/plotsOther, experiments/resultsOther
+results = compare_centers_centroid('other_images', 'MaxDim', 800, ...
+    'OutputSuffix', 'Other');                 % search at <=800 px per side
+results = compare_centers_centroid_union('other_images', 'MaxDim', 800, ...
+    'OutputSuffix', 'OtherUnion');            % same, union-domain TI
+results = summarize_center_comparison({'resultsOther', 'resultsOtherUnion'});
+```
+
+`other_images` holds full-resolution photographs (several thousand pixels on
+a side, against a few hundred for the `angiosperms` set), so a run there
+without `'MaxDim'` will take far longer per image.
 
 `target` may be a single image, a folder (searched recursively for
 `.png`/`.jpg`, optionally capped/subsampled via `'MaxImages'`/`'Sample'`/`'Seed'`),
@@ -84,6 +118,7 @@ falling back to the unmasked search only if no candidate clears the bar.
 | `ref_x`, `ref_y` | reflection center |
 | `centroid_x`, `centroid_y` | weighted centroid |
 | `img_width`, `img_height` | image dimensions (px) |
+| `search_scale` | scale factor the center searches ran at (1 unless `'MaxDim'` downscaled the image); the centers above are in original-image coordinates either way |
 | `dist_rot_centroid`, `dist_ref_centroid`, `dist_rot_ref` | pairwise distances (px) |
 | `dist_rot_centroid_pct`, `dist_ref_centroid_pct`, `dist_rot_ref_pct` | same distances, as % of image diagonal |
 
@@ -97,10 +132,8 @@ summarize_center_comparison({'resultsAll', 'resultsUnion'});
 
 `target` is a results folder (or cell array of them) that already contains a
 `center_comparison.csv`; a bare name is resolved against this folder.
-Default: `{'resultsAll', 'resultsUnion'}`. (Note that
-`compare_centers_centroid.m` writes to `results_all/`, so point this script
-at that folder explicitly, or at whichever folder holds the CSV you want
-summarized.)
+Default: `{'resultsAll', 'resultsUnion'}`, the two scripts' default output
+folders.
 
 For each folder, it derives the rest of that folder's output from
 `center_comparison.csv`:
@@ -123,11 +156,17 @@ older run, since it no longer produces them.
 
 ## Output folders
 
-- **`plotsAll/`**, **`results_all/`** — output of a full `compare_centers_centroid.m`
-  run (171 images, the `angiosperms` default target).
+- **`plotsAll/`**, **`resultsAll/`** — output of a full `compare_centers_centroid.m`
+  run (171 images, the `angiosperms` default target). `results_all/` is the
+  same run's output under the script's older default folder name.
 - **`plotsUnion/`**, **`resultsUnion/`** — the same for `compare_centers_centroid_union.m`.
 - **`plotsMasked/`**, **`resultsMasked/`** — output of an earlier, partial
   run (11 images) kept for reference; regenerate rather than relying on it
   as current.
+- **`plotsOther/`**, **`resultsOther/`** — the suggested folders for a
+  run of either script over `other_images/` (created on demand by
+  `'OutputSuffix', 'Other'`; use distinct suffixes if you run both).
+- **`other_images/`** — assorted non-`angiosperms` images (photographs and
+  processed figures) to try the center comparison on.
 - **`scratch_ti_curves/`** — ad-hoc TI-curve plots for individual images,
   not part of the pipeline above.
